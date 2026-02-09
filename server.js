@@ -157,7 +157,7 @@ app.get('/panel', (req, res) => {
 app.post('/panel/login', (req, res) => {
   const { user, pw } = req.body;
   console.log(`[DEBUG] Login attempt - user: ${user}`);
-  
+
   if (user === PANEL_USER && pw === PANEL_PASS) {
     req.session.authed = true;
     req.session.username = user;
@@ -167,16 +167,16 @@ app.post('/panel/login', (req, res) => {
     console.log(`[DEBUG] Login success - session saved`);
     return res.redirect(303, '/panel');
   }
-  
+
   console.log(`[DEBUG] Login failed`);
   res.redirect(303, '/panel?fail=1');
 });
 
-app.get('/panel/*splat', (req, res) => res.redirect(302, '/panel'));
+app.get('/panel/*', (req, res) => res.redirect(302, '/panel'));
 
-app.post('/panel/logout', (req, res) => { 
-  req.session.destroy(); 
-  res.redirect(303, '/panel'); 
+app.post('/panel/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect(303, '/panel');
 });
 
 app.get(['/_panel.html', '/panel.html'], (req, res) => res.redirect('/panel'));
@@ -542,5 +542,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
+
 
 
