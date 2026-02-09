@@ -275,7 +275,7 @@
   <div class="login-card">
     <div class="login-title">Log in</div>
     <div class="login-sub"></div>
-    <form method="post" action="/panel/login" autocomplete="off" onsubmit="return handleSubmit()">
+    <form method="post" action="/panel/login" autocomplete="off" onsubmit="return handleSubmit(event)">
       <div class="field">
         <label>User</label>
         <input name="user" type="text" placeholder="admin" required autofocus>
@@ -298,22 +298,48 @@
 
     function setTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
-      
+
       // Update background layers
       document.querySelectorAll('.bg-layer').forEach(el => {
         el.classList.toggle('active', el.id === 'bg' + theme.replace('theme', ''));
       });
     }
 
+    // Show error if login failed
     if (location.search.includes('fail')) {
       document.getElementById('error').style.display = 'block';
     }
-    
-    function handleSubmit() {
+
+    // Handle form submission
+    function handleSubmit(event) {
+      event.preventDefault();
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = 'Signing in...';
-      return true;
+
+      const form = event.target;
+      const formData = new FormData(form);
+
+      fetch('/panel/login', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'CONTINUE';
+          document.getElementById('error').style.display = 'block';
+        }
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btn.textContent = 'CONTINUE';
+        document.getElementById('error').style.display = 'block';
+      });
+
+      return false;
     }
 
     loadTheme();
