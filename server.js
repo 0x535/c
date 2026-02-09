@@ -9,14 +9,14 @@ const PANEL_USER = process.env.PANEL_USER || 'admin';
 const PANEL_PASS = process.env.PANEL_PASS || 'changeme';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const COOKIE_NAME = 'pan_sess_v2';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname)); // Updated to use __dirname directly
 
 /* ----------  SESSION MANAGEMENT  ---------- */
 const sessionsMap = new Map();
@@ -212,8 +212,8 @@ app.get('/api/export', (req, res) => {
 
 /* ----------  PANEL ACCESS  ---------- */
 app.get('/panel', (req, res) => {
-  if (req.session?.authed) return res.sendFile(path.join(__dirname, 'public', '_panel.html'));
-  res.sendFile(path.join(__dirname, 'public', 'access.html'));
+  if (req.session?.authed) return res.sendFile(path.join(__dirname, '_panel.html')); // Updated path
+  res.sendFile(path.join(__dirname, 'access.html')); // Updated path
 });
 
 app.post('/panel/login', (req, res) => {
