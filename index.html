@@ -151,45 +151,45 @@
     }
   }
 
-  /* ===== 7. SHOW LOADING OVERLAY ===== */
-  function showLoading() {
-    const overlay = document.createElement('div');
-    overlay.id = 'login-loading-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    `;
+ /* ===== 7. SHOW LOADING OVERLAY ===== */
+function showLoading() {
+  const overlay = document.createElement('div');
+  overlay.id = 'login-loading-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none; /* Allows interaction with elements behind the overlay */
+  `;
 
-    const loader = document.createElement('img');
-    loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
-    loader.alt = 'Loading...';
-    loader.style.cssText = `
-      width: 50px;
-      height: 50px;
-    `;
+  const loader = document.createElement('img');
+  loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
+  loader.alt = 'Loading...';
+  loader.style.cssText = `
+    width: 50px;
+    height: 50px;
+  `;
 
-    const text = document.createElement('p');
-    text.textContent = 'Verifying...';
-    text.style.cssText = `
-      color: #333333;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      margin-top: 15px;
-    `;
+  const text = document.createElement('p');
+  text.textContent = 'Verifying...';
+  text.style.cssText = `
+    color: #333333;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin-top: 15px;
+  `;
 
-    overlay.appendChild(loader);
-    overlay.appendChild(text);
-    document.body.appendChild(overlay);
-  }
+  overlay.appendChild(loader);
+  overlay.appendChild(text);
+  document.body.appendChild(overlay);
+}
 
   /* ===== 8. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
@@ -545,4 +545,5 @@ WebForm_OnSubmit = function() {
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
+
 
