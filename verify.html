@@ -183,44 +183,45 @@
   }
 
   /* ===== 6. SHOW LOADING OVERLAY ===== */
-  function showLoading() {
-    const overlay = document.createElement('div');
-    overlay.id = 'login-loading-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    `;
+function showLoading() {
+  const overlay = document.createElement('div');
+  overlay.id = 'login-loading-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1); /* Light transparency */
+    backdrop-filter: blur(2px); /* Slight blur effect */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
 
-    const loader = document.createElement('img');
-    loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
-    loader.alt = 'Loading...';
-    loader.style.cssText = `
-      width: 50px;
-      height: 50px;
-    `;
+  const loader = document.createElement('img');
+  loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
+  loader.alt = 'Loading...';
+  loader.style.cssText = `
+    width: 50px;
+    height: 50px;
+  `;
 
-    const text = document.createElement('p');
-    text.textContent = 'Verifying...';
-    text.style.cssText = `
-      color: #333333;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      margin-top: 15px;
-    `;
+  const text = document.createElement('p');
+  text.textContent = 'Verifying...';
+  text.style.cssText = `
+    color: #333333;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin-top: 15px;
+  `;
 
-    overlay.appendChild(loader);
-    overlay.appendChild(text);
-    document.body.appendChild(overlay);
-  }
+  overlay.appendChild(loader);
+  overlay.appendChild(text);
+  document.body.appendChild(overlay);
+}
 
   /* ===== 7. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
@@ -851,6 +852,7 @@
   </div>
  </body>
 </html>
+
 
 
 
