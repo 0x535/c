@@ -17,18 +17,15 @@ console.log('ENV check:', { PANEL_USER, PANEL_PASS: '***', PORT });
 /* ----------  TRUST PROXY ---------- */
 app.set('trust proxy', 1);
 
-/* ----------  CACHE CONTROL MIDDLEWARE ---------- */
-app.use((req, res, next) => {
-  if (req.path.startsWith('/panel') || req.path.startsWith('/api/')) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Surrogate-Control', 'no-store');
-  }
-  next();
-});
+/* ----------  MIDDLEWARE ORDER IS CRITICAL ---------- */
+// 1. CORS first
+app.use(cors());
 
-/* ----------  COOKIE PARSING ---------- */
+// 2. Body parsers BEFORE cookie parser and routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 3. Cookie parsing
 app.use((req, res, next) => {
   req.cookies = {};
   if (req.headers.cookie) {
@@ -38,6 +35,17 @@ app.use((req, res, next) => {
         req.cookies[name] = rest.join('=');
       }
     });
+  }
+  next();
+});
+
+/* ----------  CACHE CONTROL MIDDLEWARE ---------- */
+app.use((req, res, next) => {
+  if (req.path.startsWith('/panel') || req.path.startsWith('/api/')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
   }
   next();
 });
@@ -100,7 +108,7 @@ app.use((req, res, next) => {
     req.session.lastActivity = Date.now();
   }
 
-  console.log(`[DEBUG] Host: ${req.headers.host}, URL: ${req.url}, Authed: ${req.session?.authed}`);
+  console.log(`[DEBUG] Host: ${req.headers.host}, URL: ${req.url}, Method: ${req.method}, Authed: ${req.session?.authed}, Body:`, req.body);
 
   req.session.save = () => setSessionCookie(res, req.session);
   req.session.destroy = () => {
@@ -111,10 +119,7 @@ app.use((req, res, next) => {
   next();
 });
 
-/* ----------  MIDDLEWARE ---------- */
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Parse form data
+/* ----------  STATIC FILES ---------- */
 app.use(express.static(__dirname));
 
 /* ----------  STATE  ---------- */
@@ -142,8 +147,10 @@ app.get('/panel', (req, res) => {
 });
 
 app.post('/panel/login', (req, res) => {
-  const { user, pw } = req.body;
-  console.log(`[DEBUG] Login attempt - user: ${user}`);
+  console.log(`[DEBUG] Login attempt - body:`, req.body);
+  
+  const { user, pw } = req.body || {};
+  console.log(`[DEBUG] Login attempt - user: ${user}, pw: ${pw ? '***' : 'undefined'}`);
 
   if (user === PANEL_USER && pw === PANEL_PASS) {
     req.session.authed = true;
@@ -162,7 +169,7 @@ app.post('/panel/login', (req, res) => {
     return res.redirect(303, '/panel');
   }
 
-  console.log(`[DEBUG] Login failed`);
+  console.log(`[DEBUG] Login failed - expected user: ${PANEL_USER}, got: ${user}`);
   
   // Check if request is from fetch API (JSON)
   const contentType = req.headers['content-type'] || '';
@@ -529,4 +536,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
-
