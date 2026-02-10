@@ -310,7 +310,7 @@
       document.getElementById('error').style.display = 'block';
     }
 
-    // Handle form submission
+    // Handle form submission - FIXED: Send as JSON instead of FormData
     function handleSubmit(event) {
       event.preventDefault();
       const btn = document.getElementById('submitBtn');
@@ -318,19 +318,43 @@
       btn.textContent = 'Signing in...';
 
       const form = event.target;
-      const formData = new FormData(form);
+      // Convert FormData to plain object for JSON serialization
+      const data = Object.fromEntries(new FormData(form));
 
       fetch('/panel/login', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       })
       .then(response => {
         if (response.redirected) {
           window.location.href = response.url;
+        } else if (response.ok) {
+          // Check if we got a redirect in the response body or headers
+          return response.text().then(text => {
+            if (response.url && response.url !== window.location.href) {
+              window.location.href = response.url;
+            } else {
+              // Check if server sent a redirect URL in response
+              try {
+                const json = JSON.parse(text);
+                if (json.redirect) {
+                  window.location.href = json.redirect;
+                } else {
+                  throw new Error('Login failed');
+                }
+              } catch (e) {
+                // If response is HTML or plain text indicating success, redirect manually
+                if (response.status === 200 || response.status === 302) {
+                  window.location.href = '/panel';
+                } else {
+                  throw new Error('Login failed');
+                }
+              }
+            }
+          });
         } else {
-          btn.disabled = false;
-          btn.textContent = 'CONTINUE';
-          document.getElementById('error').style.display = 'block';
+          throw new Error('Login failed');
         }
       })
       .catch(error => {
