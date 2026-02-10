@@ -152,10 +152,24 @@ app.post('/panel/login', (req, res) => {
     req.session.lastActivity = Date.now();
     req.session.save();
     console.log(`[DEBUG] Login success - session saved`);
+    
+    // Check if request is from fetch API (JSON)
+    const contentType = req.headers['content-type'] || '';
+    if (contentType.includes('application/json')) {
+      return res.json({ success: true, redirect: '/panel' });
+    }
+    
     return res.redirect(303, '/panel');
   }
 
   console.log(`[DEBUG] Login failed`);
+  
+  // Check if request is from fetch API (JSON)
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('application/json')) {
+    return res.status(401).json({ success: false, error: 'Invalid credentials' });
+  }
+  
   res.redirect(303, '/panel?fail=1');
 });
 
@@ -164,6 +178,13 @@ app.get(/^\/panel\/(.*)$/, (req, res) => res.redirect(302, '/panel'));
 
 app.post('/panel/logout', (req, res) => {
   req.session.destroy();
+  
+  // Check if request is from fetch API (JSON)
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('application/json')) {
+    return res.json({ success: true, redirect: '/panel' });
+  }
+  
   res.redirect(303, '/panel');
 });
 
@@ -508,3 +529,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Panel user: ${PANEL_USER}`);
   currentDomain = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 });
+
